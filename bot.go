@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	//"github.com/hugbotme/go-aspell"
 	"os"
 	"os/signal"
+	"time"
 )
 
 func main() {
@@ -14,17 +14,26 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
-	for {
-		// jvt: run as long as no interrupt is sent
-		go func() {
-			for sig := range c {
-				fmt.Printf("captured %v, notifying everyone...\n", sig)
+	jobs := make(chan string)
 
-				fmt.Println("exiting...")
-				os.Exit(1)
-			}
-		}()
+	go func() {
+		time.Sleep(time.Second * 1)
+		jobs <- "ping"
+	}()
 
-		// jvt: do things...
+	// jvt: run as long as no interrupt is sent
+	go func() {
+		for sig := range c {
+			fmt.Printf("captured %v, notifying everyone...\n", sig)
+
+			fmt.Println("exiting...")
+			os.Exit(1)
+		}
+	}()
+
+	for job := range jobs {
+		// jvt: check for new job
+		fmt.Println("got new job: " + job)
+		go parseRepository(job)
 	}
 }
