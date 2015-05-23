@@ -29,8 +29,14 @@ func hug(url string) {
 		"another awesome test string",
 	}
 
+	processor, err := newSpellCheckFileProcessor()
+	if err != nil {
+		fmt.Errorf("could not get speller: %s", err.Error())
+		return
+	}
+
 	for _, file := range files {
-		content := spellCheck(file)
+		content := processor.processContent(file)
 		fmt.Println("corrected content: " + content)
 	}
 }
