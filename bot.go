@@ -48,6 +48,19 @@ func AddFinished(client redis.Conn, hug *Hug) error {
 	return nil
 }
 
+func ConnectRedis(url string, auth string) redis.Conn {
+	redisClient, err := redis.Dial("tcp", url)
+	if err != nil {
+		log.Fatal("Redis client init failed:", err)
+		os.Exit(2)
+	}
+	if _, err := redisClient.Do("AUTH", auth); err != nil {
+		redisClient.Close()
+		os.Exit(2)
+	}
+	return redisClient
+}
+
 func main() {
 	/*testFile, _ := ioutil.ReadFile("./README.md.1")
 	// jvt: @todo error handling?
@@ -62,12 +75,12 @@ func main() {
 
 	jobs := make(chan *Hug)
 
+	redisUrl := os.Getenv("REDIS_URL")
+	redisAuth := os.Getenv("REDIS_AUTH")
+
 	go func() {
 		time.Sleep(time.Second * 1)
-		redisClient, err := redis.Dial("tcp", ":6379")
-		if err != nil {
-			log.Fatal("Redis client init failed:", err)
-		}
+		redisClient := ConnectRedis(redisUrl, redisAuth)
 		defer redisClient.Close()
 
 		for {
