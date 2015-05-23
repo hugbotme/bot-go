@@ -1,48 +1,28 @@
 package main
 
-import(
+import (
 	"fmt"
 	"log"
 	//"gopkg.in/libgit2/git2go.v22"
 	"github.com/hugbotme/bot-go/parser"
-	"github.com/libgit2/git2go"
 )
 
 func hug(url string) {
 	fmt.Println("parsing repository: " + url)
 
-	parser := parser.NewParser()
-
 	repoName := "karban"
 
-	repo, _, err := parser.ForkRepository("mre", repoName)
+	parser := parser.NewParser("mre", repoName)
+
+	lines, err := parser.GetFileContents("Readme.md")
 
 	if err != nil {
-		log.Printf("Error during fork: %v\n", err)
+		log.Printf("Error during clone: %v\n", err)
+	} else {
+		for i, line := range lines {
+			fmt.Println(i, line)
+		}
 	}
-
-	log.Printf("Forked repo:" + *repo.CloneURL)
-
-	repoClone, err := git.Clone(*repo.CloneURL, "cloned_projects/" + repoName, &git.CloneOptions{})
-
-
-if err != nil {
-log.Printf("Error during clone: %v\n", err)
-}
-
-
-	log.Printf("%v", repoClone)
-
-lines, err := parser.ReadLines("project-clones/karban/README.md")
-if err != nil {
-log.Fatalf("ReadLines: %s", err)
-}
-for i, line := range lines {
-fmt.Println(i, line)
-}
-
-
-
 
 	files := []string{
 		"test string one",

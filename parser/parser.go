@@ -1,17 +1,18 @@
 package parser
 
 import (
+	"bufio"
 	"errors"
 	"flag"
+	"fmt"
+	"github.com/google/go-github/github"
+	"github.com/hugbotme/bot-go/config"
+	"github.com/hugbotme/bot-go/repository"
+	"github.com/libgit2/git2go"
 	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
-	"github.com/hugbotme/bot-go/repository"
-	"github.com/hugbotme/bot-go/config"
-	"github.com/google/go-github/github"
-"bufio"
-"fmt"
-"log"
 )
 
 var (
@@ -21,7 +22,10 @@ var (
 )
 
 type Parser struct {
-	client *repository.GithubClient
+	client             *repository.GithubClient
+	clonedProjectsPath string
+	username           string
+	repositoryname     string
 }
 
 const (
@@ -31,7 +35,7 @@ const (
 )
 
 // Init function to define arguments
-func NewParser() Parser {
+func NewParser(username, repositoryname string) Parser {
 	flagConfigFile = flag.String("config", "", "Configuration file")
 	flagPidFile = flag.String("pidfile", "", "Write the process id into a given file")
 	flagVersion = flag.Bool("version", false, "Outputs the version number and exits")
@@ -44,27 +48,50 @@ func NewParser() Parser {
 
 	log.Println(config.Github)
 
-	return Parser {
-		client : repository.NewGithubClient(&config.Github),
-	}
+	client := repository.NewGithubClient(&config.Github)
+	clonedProjectsPath := "cloned_projects/"
 
+	return Parser{
+		client:             client,
+		clonedProjectsPath: clonedProjectsPath,
+		username:           username,
+		repositoryname:     repositoryname,
+	}
 }
 
-func (p Parser) ForkRepository(username, repo string) (*github.Repository, *github.Response, error){
+func (p Parser) ForkRepository(username, repo string) (*github.Repository, *github.Response, error) {
 	// list all repositories for the authenticated user
 	//repos, _, err := githubClient.Client.Repositories.List("", nil)
-
 
 	// Get contents of README of a repo
 	// if err...
 
-	forkOptions := github.RepositoryCreateForkOptions {
+	forkOptions := github.RepositoryCreateForkOptions{
 		"",
 	}
 
 	return p.client.Client.Repositories.CreateFork(username, repo, &forkOptions)
 }
 
+func (p Parser) GetFileContents(filename string) ([]string, error) {
+	repo, _, err := p.ForkRepository(p.username, p.repositoryname)
+
+	if err != nil {
+		log.Printf("Error during fork: %v\n", err)
+	}
+
+	log.Printf("Forked repo:" + *repo.CloneURL)
+
+	repoClone, err := git.Clone(*repo.CloneURL, p.clonedProjectsPath+p.repositoryname, &git.CloneOptions{})
+
+	if err != nil {
+		log.Printf("Error during clone: %v\n", err)
+	}
+
+	log.Printf("%v", repoClone)
+
+	return p.ReadLines(p.clonedProjectsPath + p.repositoryname + "/" + filename)
+}
 
 // readLines reads a whole file into memory
 // and returns a slice of its lines.
@@ -98,9 +125,7 @@ func (p Parser) WriteLines(lines []string, path string) error {
 	return w.Flush()
 }
 
-
-
-func getConfig() (*config.Configuration, error)  {
+func getConfig() (*config.Configuration, error) {
 
 	flag.Parse()
 

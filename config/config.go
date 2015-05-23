@@ -10,9 +10,9 @@ type Configuration struct {
 }
 
 type GithubConfiguration struct {
-	Username               string                    `json:"username"`
-	APIToken               string                    `json:"api-token"`
-	PRTemplate             githubPullRequestTemplate `json:"pull-request"`
+	Username   string                    `json:"username"`
+	APIToken   string                    `json:"api-token"`
+	PRTemplate githubPullRequestTemplate `json:"pull-request"`
 }
 
 type githubPullRequestTemplate struct {
