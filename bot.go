@@ -12,7 +12,8 @@ func main() {
 	testFile, _ := ioutil.ReadFile("./README.md.1")
 	// jvt: @todo error handling?
 	processor, _ := newSpellCheckFileProcessor()
-	fmt.Println(processor.processContent(string(testFile)))
+	correctedContent := processor.processContent(testFile);
+	fmt.Println(correctedContent)
 	os.Exit(1)
 
 	// capture ctrl+c and stop execution

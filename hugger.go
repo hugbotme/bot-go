@@ -56,7 +56,7 @@ fmt.Println(i, line)
 	}
 
 	for _, file := range files {
-		content := processor.processContent(file)
-		fmt.Println("corrected content: " + content)
+		content := processor.processContent([]byte(file))
+		fmt.Println("corrected content: " + string(content))
 	}
 }
