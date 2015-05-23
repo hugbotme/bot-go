@@ -5,30 +5,15 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	//"flag"
+	"io/ioutil"
 )
 
 func main() {
-	// jvt: check for test string
-	/*var testString string
-	var testRepo string
-	flag.StringVar(&testString, "t", "", "string to run a test translation on")
-	flag.StringVar(&testRepo, "r", "", "repo URL to crawl")
-	flag.Parse()
-
-	if len(testString) > 0 {
-		fmt.Println("got test string...")
-		fmt.Println(spellCheck(testString))
-		os.Exit(1)
-	}
-
-	if len(testRepo) > 0 {
-		fmt.Println("got test repo...")
-		hug(testRepo)
-		os.Exit(1)
-	}*/
-
-	fmt.Println("here we go #hahaha")
+	testFile, _ := ioutil.ReadFile("./README.md.1")
+	// jvt: @todo error handling?
+	processor, _ := newSpellCheckFileProcessor()
+	fmt.Println(processor.processContent(string(testFile)))
+	os.Exit(1)
 
 	// capture ctrl+c and stop execution
 	c := make(chan os.Signal, 1)
@@ -51,8 +36,8 @@ func main() {
 		}
 	}()
 
+	// jvt: check for new job
 	for job := range jobs {
-		// jvt: check for new job
 		fmt.Println("got new job: " + job)
 		go hug(job)
 	}
