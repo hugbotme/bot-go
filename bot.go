@@ -20,12 +20,15 @@ type Hug struct {
 }
 
 func FetchFromQueue(client redis.Conn) (*Hug, error) {
-	bytes, err := redis.Bytes(client.Do("BLPOP", "hug:queue", 0))
+	values, err := redis.Values(client.Do("BLPOP", "hug:queue", 0))
 	if err != nil {
 		return nil, err
 	}
-	if len(bytes) == 0 {
-		return nil, errors.New("No job")
+
+	bytes, err := redis.Bytes(values[1], nil)
+	if err != nil {
+		log.Fatal("Something broke in bytes", err)
+		return nil, errors.New("Something broke in bytes")
 	}
 
 	var hug Hug
