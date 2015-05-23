@@ -2,17 +2,17 @@ package main
 
 import(
 	"fmt"
+	//"gopkg.in/libgit2/git2go.v22"
+	"github.com/hugbotme/bot-go/parser"
 )
 
 func hug(url string) {
 	fmt.Println("parsing repository: " + url)
 
-	githubClient := getGithubClient()
+	parser := parser.NewParser()
 
+	parser.ForkRepository("mre", "beacon")
 
-
-
-	// jvt: @todo parse repository
 	files := []string{
 		"test string one",
 		"another awesome test string",

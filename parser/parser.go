@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"errors"
@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"github.com/hugbotme/bot-go/repository"
 	"github.com/hugbotme/bot-go/config"
+	"github.com/google/go-github/github"
 )
 
 var (
@@ -17,6 +18,10 @@ var (
 	flagVersion    *bool
 )
 
+type Parser struct {
+	client *repository.GithubClient
+}
+
 const (
 	majorVersion = 1
 	minorVersion = 0
@@ -24,13 +29,10 @@ const (
 )
 
 // Init function to define arguments
-func init() {
+func NewParser() Parser {
 	flagConfigFile = flag.String("config", "", "Configuration file")
 	flagPidFile = flag.String("pidfile", "", "Write the process id into a given file")
 	flagVersion = flag.Bool("version", false, "Outputs the version number and exits")
-}
-
-func getGithubClient() *repository.GithubClient {
 
 	config, err := getConfig()
 
@@ -40,8 +42,32 @@ func getGithubClient() *repository.GithubClient {
 
 	log.Println(config.Github)
 
-	return repository.NewGithubClient(&config.Github)
+	return Parser {
+		client : repository.NewGithubClient(&config.Github),
+	}
+
 }
+
+func (p Parser) ForkRepository(username, repo string) {
+	// list all repositories for the authenticated user
+	//repos, _, err := githubClient.Client.Repositories.List("", nil)
+
+
+	// Get contents of README of a repo
+	// if err...
+
+	forkOptions := github.RepositoryCreateForkOptions {
+		"hugbotme",
+	}
+
+	p.client.Client.Repositories.CreateFork(username, repo, &forkOptions)
+
+}
+
+
+
+
+
 
 func getConfig() (*config.Configuration, error)  {
 
