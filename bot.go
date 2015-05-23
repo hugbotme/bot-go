@@ -5,19 +5,28 @@ import (
 	"os"
 	"os/signal"
 	"time"
-	"flag"
+	//"flag"
 )
 
 func main() {
 	// jvt: check for test string
-	var testString string
-	flag.StringVar(&testString, "t", "string", "string to run a test translation on")
+	/*var testString string
+	var testRepo string
+	flag.StringVar(&testString, "t", "", "string to run a test translation on")
+	flag.StringVar(&testRepo, "r", "", "repo URL to crawl")
 	flag.Parse()
+
 	if len(testString) > 0 {
 		fmt.Println("got test string...")
 		fmt.Println(spellCheck(testString))
 		os.Exit(1)
 	}
+
+	if len(testRepo) > 0 {
+		fmt.Println("got test repo...")
+		hug(testRepo)
+		os.Exit(1)
+	}*/
 
 	fmt.Println("here we go #hahaha")
 
