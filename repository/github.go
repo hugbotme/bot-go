@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/hugbotme/bot-go/config"
 	"github.com/google/go-github/github"
+	"github.com/hugbotme/bot-go/config"
 	"golang.org/x/oauth2"
 )
 

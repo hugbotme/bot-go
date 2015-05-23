@@ -4,6 +4,7 @@ import(
 	"fmt"
 	aspell "github.com/hugbotme/go-aspell"
 	s "strings"
+	"bytes"
 )
 
 type spellCheckFileProcessor struct {
@@ -27,8 +28,13 @@ func newSpellCheckFileProcessor() (spellCheckFileProcessor, error) {
  * run a spell check on passed content
  * passes back original content if an error occurs
  */
-func (spfp spellCheckFileProcessor) processContent (content string) string {
-	return content
+func (spfp spellCheckFileProcessor) processContent (content []byte) string {
+	var buffer bytes.Buffer
+	for _, b := range content {
+		buffer.WriteByte(b)
+	}
+
+	return buffer.String()
 }
 
 func (spfp spellCheckFileProcessor) checkSpelling (word string) (bool, []string) {

@@ -5,39 +5,26 @@ import (
 	"log"
 	//"gopkg.in/libgit2/git2go.v22"
 	"github.com/hugbotme/bot-go/parser"
-	"github.com/libgit2/git2go"
 )
 
 func processHug(url *Hug) {
 	fmt.Println("parsing repository: " + url.URL)
 
-	parser := parser.NewParser()
-
 	repoName := "karban"
 
-	repo, _, err := parser.ForkRepository("mre", repoName)
+	parser := parser.NewParser("mre", repoName)
 
-	if err != nil {
-		log.Printf("Error during fork: %v\n", err)
-	}
-
-	log.Printf("Forked repo:" + *repo.CloneURL)
-
-	repoClone, err := git.Clone(*repo.CloneURL, "cloned_projects/"+repoName, &git.CloneOptions{})
+	lines, err := parser.GetFileContents("Readme.md")
 
 	if err != nil {
 		log.Printf("Error during clone: %v\n", err)
+	} else {
+		for i, line := range lines {
+			fmt.Println(i, line)
+		}
 	}
 
-	log.Printf("%v", repoClone)
-
-	lines, err := parser.ReadLines("project-clones/karban/README.md")
-	if err != nil {
-		log.Fatalf("ReadLines: %s", err)
-	}
-	for i, line := range lines {
-		fmt.Println(i, line)
-	}
+	parser.CommitFile("Readme.md", lines)
 
 	files := []string{
 		"test string one",
@@ -51,7 +38,7 @@ func processHug(url *Hug) {
 	}
 
 	for _, file := range files {
-		content := processor.processContent(file)
-		fmt.Println("corrected content: " + content)
+		content := processor.processContent([]byte(file))
+		fmt.Println("corrected content: " + string(content))
 	}
 }
