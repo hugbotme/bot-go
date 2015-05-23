@@ -1,0 +1,20 @@
+{
+  "github": {
+    "username": "USERNAME",
+    "api-token": "TOKEN",
+    "pull-request": {
+      "title": "A friendly gift from hugbot: %title%",
+      "body": [
+        "%commit-msg%",
+        "",
+        "------",
+        "",
+        "Details: %url%",
+        "",
+        "------",
+        "",
+        "This PR was created (automatically) by [gotrap](https://github.com/andygrunwald/gotrap) with :heart: and :beer:"
+      ]
+    }
+  }
+}

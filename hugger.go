@@ -7,6 +7,11 @@ import(
 func hug(url string) {
 	fmt.Println("parsing repository: " + url)
 
+	githubClient := getGithubClient()
+
+
+
+
 	// jvt: @todo parse repository
 	files := []string{
 		"test string one",
