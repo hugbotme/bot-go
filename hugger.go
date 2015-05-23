@@ -29,9 +29,8 @@ func processHug(url *Hug) {
 
 	// TODO: ERROR HANDLING
 	branch, err := parser.CreateBranch(branchname)
-
 	parser.CommitFile(branch, branchname, "Readme.md", lines, "Fixing some typos")
-	parser.PullRequest("A friendly pull request")
+	parser.PullRequest(branchname, "A friendly pull request")
 
 	files := []string{
 		"test string one",

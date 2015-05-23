@@ -3,7 +3,6 @@ package parser
 import (
 	"bufio"
 	"errors"
-	"time"
 	"flag"
 	"fmt"
 	"github.com/google/go-github/github"
@@ -14,6 +13,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 var (
@@ -24,12 +24,12 @@ var (
 
 type Parser struct {
 	client             *repository.GithubClient
-	configuration		*config.Configuration
+	configuration      *config.Configuration
 	clonedProjectsPath string
 	username           string
 	repositoryname     string
-	signature *git.Signature
-	repopointer *git.Repository
+	signature          *git.Signature
+	repopointer        *git.Repository
 }
 
 const (
@@ -53,21 +53,33 @@ func NewParser(username, repositoryname string) Parser {
 	client := repository.NewGithubClient(&config.Github)
 	clonedProjectsPath := "cloned_projects/"
 
-	signature := &git.Signature {
-		Name: config.Git.Name,
+	signature := &git.Signature{
+		Name:  config.Git.Name,
 		Email: config.Git.Email,
-		When: time.Now(),
+		When:  time.Now(),
 	}
 
 	return Parser{
 		client:             client,
-		configuration: 		config,
+		configuration:      config,
 		clonedProjectsPath: clonedProjectsPath,
 		username:           username,
 		repositoryname:     repositoryname,
-		signature: signature,
-		repopointer: nil,
+		signature:          signature,
+		repopointer:        nil,
 	}
+}
+
+func credentialsCallback(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
+	ret, cred := git.NewCredSshKeyFromAgent(username)
+	return git.ErrorCode(ret), &cred
+}
+
+func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
+	if hostname != "github.com" {
+		return git.ErrUser
+	}
+	return 0
 }
 
 func (p Parser) ForkRepository(username, repo string) (*github.Repository, *github.Response, error) {
@@ -115,7 +127,7 @@ func (p Parser) CreateBranch(branchname string) (*git.Branch, error) {
 		return nil, err
 	}
 
-	return p.repopointer.CreateBranch(branchname, headCommit, false, p.signature, "Branch for " + branchname)
+	return p.repopointer.CreateBranch(branchname, headCommit, false, p.signature, "Branch for "+branchname)
 }
 
 func (p Parser) CommitFile(branch *git.Branch, branchname string, filename string, contents []string, msg string) error {
@@ -130,14 +142,27 @@ func (p Parser) CommitFile(branch *git.Branch, branchname string, filename strin
 	return p.Commit(branch, branchname, treeId, msg)
 }
 
-func (p Parser) PullRequest(msg string) {
+func (p Parser) PullRequest(branchname, msg string) error {
 
+	cbs := &git.RemoteCallbacks{
+		CredentialsCallback:      credentialsCallback,
+		CertificateCheckCallback: certificateCheckCallback,
+	}
+
+	fork, err := p.repopointer.CreateRemote("fork", "git@github.com:" + p.username + "/" + p.repositoryname + ".git")
+
+	err = fork.SetCallbacks(cbs)
+	if err != nil {
+		return err
+	}
+
+	return fork.Push([]string{"refs/heads/" + branchname}, nil, p.signature, msg)
 }
 
-func (p Parser) Commit(branch *git.Branch, branchname string, treeId *git.Oid, msg string) (error) {
+func (p Parser) Commit(branch *git.Branch, branchname string, treeId *git.Oid, msg string) error {
 	tree, err := p.repopointer.LookupTree(treeId)
 	if err != nil {
-return err
+		return err
 	}
 
 	commitTarget, err := p.repopointer.LookupCommit(branch.Target())
@@ -145,34 +170,32 @@ return err
 		return err
 	}
 
-	_, err = p.repopointer.CreateCommit("refs/heads/" + branchname, p.signature, p.signature, msg, tree, commitTarget)
+	_, err = p.repopointer.CreateCommit("refs/heads/"+branchname, p.signature, p.signature, msg, tree, commitTarget)
 	return err
 }
 
-
 func (p Parser) AddFilePath(filepath string) (*git.Oid, error) {
 	idx, err := p.repopointer.Index()
-if err != nil {
-return nil, err
-}
+	if err != nil {
+		return nil, err
+	}
 
-err = idx.AddByPath(filepath)
-if err != nil {
-return nil, err
-}
+	err = idx.AddByPath(filepath)
+	if err != nil {
+		return nil, err
+	}
 
-treeId, err := idx.WriteTree()
-if err != nil {
-return nil, err
-}
+	treeId, err := idx.WriteTree()
+	if err != nil {
+		return nil, err
+	}
 
-err = idx.Write()
-if err != nil {
-return nil, err
-}
+	err = idx.Write()
+	if err != nil {
+		return nil, err
+	}
 	return treeId, nil
 }
-
 
 // readLines reads a whole file into memory
 // and returns a slice of its lines.
