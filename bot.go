@@ -20,7 +20,7 @@ type Hug struct {
 }
 
 func FetchFromQueue(client redis.Conn) (*Hug, error) {
-	bytes, err := redis.Bytes(client.Do("BLPOP", "hug:queue"))
+	bytes, err := redis.Bytes(client.Do("BLPOP", "hug:queue", 0))
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func main() {
 	// jvt: @todo error handling?
 	processor, _ := newSpellCheckFileProcessor()
 
-	correctedContent := processor.processContent(testFile);
+	correctedContent := processor.processContent(testFile)
 	fmt.Println(correctedContent)
 
 	// capture ctrl+c and stop execution
