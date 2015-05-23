@@ -27,7 +27,7 @@ func FetchFromQueue(client redis.Conn) (*Hug, error) {
 
 	bytes, err := redis.Bytes(values[1], nil)
 	if err != nil {
-		log.Fatal("Something broke in bytes", err)
+		log.Print("Something broke in bytes", err)
 		return nil, errors.New("Something broke in bytes")
 	}
 
@@ -55,7 +55,6 @@ func ConnectRedis(url string, auth string) redis.Conn {
 	redisClient, err := redis.Dial("tcp", url)
 	if err != nil {
 		log.Fatal("Redis client init failed:", err)
-		os.Exit(2)
 	}
 	if _, err := redisClient.Do("AUTH", auth); err != nil {
 		redisClient.Close()
