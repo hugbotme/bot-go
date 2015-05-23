@@ -7,8 +7,9 @@ import (
 	"github.com/hugbotme/bot-go/parser"
 )
 
-func hug(url string) {
-	fmt.Println("Parsing repository: " + url)
+
+func processHug(url *Hug) {
+	fmt.Println("parsing repository: " + url.URL)
 
 	repoName := "karban"
 
@@ -31,7 +32,6 @@ func hug(url string) {
 
 	parser.CommitFile(branch, branchname, "Readme.md", lines, "Fixing some typos")
 	parser.PullRequest("A friendly pull request")
-
 
 	files := []string{
 		"test string one",
