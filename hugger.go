@@ -24,6 +24,9 @@ func hug(url string) {
 		}
 	}
 
+	parser.CommitFile("Readme.md", lines)
+
+
 	files := []string{
 		"test string one",
 		"another awesome test string",

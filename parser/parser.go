@@ -93,6 +93,11 @@ func (p Parser) GetFileContents(filename string) ([]string, error) {
 	return p.ReadLines(p.clonedProjectsPath + p.repositoryname + "/" + filename)
 }
 
+func (p Parser) CommitFile(filename string, contents []string) {
+	fmt.Println("Commit " + filename)
+}
+
+
 // readLines reads a whole file into memory
 // and returns a slice of its lines.
 func (p Parser) ReadLines(path string) ([]string, error) {
