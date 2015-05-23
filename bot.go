@@ -5,9 +5,20 @@ import (
 	"os"
 	"os/signal"
 	"time"
+	"flag"
 )
 
 func main() {
+	// jvt: check for test string
+	var testString string
+	flag.StringVar(&testString, "t", "string", "string to run a test translation on")
+	flag.Parse()
+	if len(testString) > 0 {
+		fmt.Println("got test string...")
+		fmt.Println(spellCheck(testString))
+		os.Exit(1)
+	}
+
 	fmt.Println("here we go #hahaha")
 
 	// capture ctrl+c and stop execution
