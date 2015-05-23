@@ -6,19 +6,25 @@ import (
 )
 
 type Configuration struct {
-	Git GitConfiguration `json:"git"`
+	Git    GitConfiguration    `json:"git"`
 	Github GithubConfiguration `json:"github"`
+	Redis  RedisConfiguration  `json:"redis"`
 }
 
 type GitConfiguration struct {
-	Name	string		`json:"Name"`
-	Email	string		`json:"Email"`
+	Name  string `json:"Name"`
+	Email string `json:"Email"`
 }
 
 type GithubConfiguration struct {
 	Username   string                    `json:"username"`
 	APIToken   string                    `json:"api-token"`
 	PRTemplate githubPullRequestTemplate `json:"pull-request"`
+}
+
+type RedisConfiguration struct {
+	Url  string `json:"url"`
+	Auth string `json:"auth"`
 }
 
 type githubPullRequestTemplate struct {

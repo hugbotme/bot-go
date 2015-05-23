@@ -3,20 +3,40 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
-	//"io/ioutil"
+	"github.com/garyburd/redigo/redis"
+	"github.com/hugbotme/bot-go/config"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
+)
 
-	"github.com/garyburd/redigo/redis"
+var (
+	flagConfigFile *string
+	flagPidFile    *string
+	flagVersion    *bool
+)
+
+const (
+	majorVersion = 1
+	minorVersion = 0
+	patchVersion = 0
 )
 
 type Hug struct {
 	TweetID       string
 	URL           string
 	PullRequestId int
+}
+
+func init() {
+	flagConfigFile = flag.String("config", "", "Configuration file")
+	flagPidFile = flag.String("pidfile", "", "Write the process id into a given file")
+	flagVersion = flag.Bool("version", false, "Outputs the version number and exits")
 }
 
 func FetchFromQueue(client redis.Conn) (*Hug, error) {
@@ -70,6 +90,31 @@ func ConnectRedis(url string, auth string) redis.Conn {
 }
 
 func main() {
+	flag.Parse()
+
+	// Output the version and exit
+	if *flagVersion {
+		fmt.Printf("bot v%d.%d.%d\n", majorVersion, minorVersion, patchVersion)
+		return
+	}
+
+	// Check for configuration file
+	if len(*flagConfigFile) <= 0 {
+		log.Fatal("No configuration file found. Please add the --config parameter")
+	}
+
+	// PID-File
+	if len(*flagPidFile) > 0 {
+		ioutil.WriteFile(*flagPidFile, []byte(strconv.Itoa(os.Getpid())), 0644)
+	}
+
+	fmt.Println("Hi, i am hugbot. And now i start to fix your typos.")
+
+	config, err := config.NewConfiguration(flagConfigFile)
+	if err != nil {
+		log.Fatal("Configuration initialisation failed:", err)
+	}
+
 	// jvt: @todo error handling?
 
 	// capture ctrl+c and stop execution
@@ -78,12 +123,9 @@ func main() {
 
 	jobs := make(chan *Hug)
 
-	redisUrl := os.Getenv("REDIS_URL")
-	redisAuth := os.Getenv("REDIS_AUTH")
-
 	go func() {
 		time.Sleep(time.Second * 1)
-		redisClient := ConnectRedis(redisUrl, redisAuth)
+		redisClient := ConnectRedis(config.Redis.Url, config.Redis.Auth)
 		defer redisClient.Close()
 
 		for {

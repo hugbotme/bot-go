@@ -2,24 +2,14 @@ package parser
 
 import (
 	"bufio"
-	"errors"
-	"flag"
 	"fmt"
 	"github.com/google/go-github/github"
 	"github.com/hugbotme/bot-go/config"
 	"github.com/hugbotme/bot-go/repository"
 	"github.com/libgit2/git2go"
-	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
 	"time"
-)
-
-var (
-	flagConfigFile *string
-	flagPidFile    *string
-	flagVersion    *bool
 )
 
 type Parser struct {
@@ -32,17 +22,8 @@ type Parser struct {
 	repopointer        *git.Repository
 }
 
-const (
-	majorVersion = 1
-	minorVersion = 0
-	patchVersion = 0
-)
-
 // Init function to define arguments
 func NewParser(username, repositoryname string) Parser {
-	flagConfigFile = flag.String("config", "", "Configuration file")
-	flagPidFile = flag.String("pidfile", "", "Write the process id into a given file")
-	flagVersion = flag.Bool("version", false, "Outputs the version number and exits")
 
 	config, err := getConfig()
 
@@ -149,7 +130,7 @@ func (p Parser) PullRequest(branchname, msg string) error {
 		CertificateCheckCallback: certificateCheckCallback,
 	}
 
-	fork, err := p.repopointer.CreateRemote("fork", "git@github.com:" + p.username + "/" + p.repositoryname + ".git")
+	fork, err := p.repopointer.CreateRemote("fork", "git@github.com:"+p.username+"/"+p.repositoryname+".git")
 
 	err = fork.SetCallbacks(cbs)
 	if err != nil {
@@ -229,19 +210,7 @@ func (p Parser) WriteLines(path string, lines string) error {
 
 func getConfig() (*config.Configuration, error) {
 
-	flag.Parse()
-
-	// Check for configuration file
-	if len(*flagConfigFile) <= 0 {
-		log.Println("No configuration file found. Please add the --config parameter")
-		return nil, errors.New("No configuration file found")
-	}
-
-	// PID-File
-	if len(*flagPidFile) > 0 {
-		ioutil.WriteFile(*flagPidFile, []byte(strconv.Itoa(os.Getpid())), 0644)
-	}
-
+	foo := "flagConfigFile"
 	// Bootstrap configuration file
-	return config.NewConfiguration(flagConfigFile)
+	return config.NewConfiguration(&foo)
 }
