@@ -29,7 +29,8 @@ func spellCheck(content string) string {
 		if speller.Check(word) {
 			fmt.Print("OK\n")
 		} else {
-			fmt.Printf("Incorrect word, suggestions: %s\n", s.Join(speller.Suggest(word), ", "))
+			suggestions := speller.Suggest(word)
+			fmt.Printf("Incorrect word, suggestions: %s\n", s.Join(suggestions, ", "))
 		}
 	}
 
