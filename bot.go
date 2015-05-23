@@ -150,6 +150,6 @@ func main() {
 	// jvt: check for new job
 	for job := range jobs {
 		fmt.Println("got new job: ", job)
-		go processHug(job)
+		go processHug(job, config)
 	}
 }

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"github.com/hugbotme/bot-go/parser"
 	"bytes"
-	netUrl "net/url"
 	"errors"
+	"fmt"
+	"github.com/hugbotme/bot-go/config"
+	"github.com/hugbotme/bot-go/parser"
+	"log"
+	netUrl "net/url"
 	"strings"
 )
 
@@ -16,7 +17,7 @@ type GitHubURL struct {
 	Repository string
 }
 
-func processHug(url *Hug) {
+func processHug(url *Hug, config *config.Configuration) {
 	fmt.Println("Parsing repository: " + url.URL)
 
 	gitHubUrl, err := ParseGitHubURL(url.URL)
@@ -26,7 +27,7 @@ func processHug(url *Hug) {
 		return
 	}
 
-	parser := parser.NewParser(gitHubUrl.Owner, gitHubUrl.Repository)
+	parser := parser.NewParser(gitHubUrl.Owner, gitHubUrl.Repository, config)
 
 	// jvt: @todo this could all be streamed through memory as a byte stream
 	lines, err := parser.GetFileContents("Readme.md")
@@ -56,7 +57,6 @@ func processHug(url *Hug) {
 		parser.PullRequest(branchname, "A friendly pull request")
 	}
 }
-
 
 func ParseGitHubURL(rawurl string) (*GitHubURL, error) {
 	parsed, err := netUrl.Parse(rawurl)

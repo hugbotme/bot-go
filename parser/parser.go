@@ -23,13 +23,7 @@ type Parser struct {
 }
 
 // Init function to define arguments
-func NewParser(username, repositoryname string) Parser {
-
-	config, err := getConfig()
-
-	if err != nil {
-		log.Fatal("Configuration initialisation failed:", err)
-	}
+func NewParser(username, repositoryname string, config *config.Configuration) Parser {
 
 	client := repository.NewGithubClient(&config.Github)
 	clonedProjectsPath := "cloned_projects/"
@@ -206,11 +200,4 @@ func (p Parser) WriteLines(path string, lines string) error {
 	w := bufio.NewWriter(file)
 	fmt.Fprintln(w, lines)
 	return w.Flush()
-}
-
-func getConfig() (*config.Configuration, error) {
-
-	foo := "flagConfigFile"
-	// Bootstrap configuration file
-	return config.NewConfiguration(&foo)
 }
