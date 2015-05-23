@@ -4,6 +4,6 @@ import(
 	"fmt"
 )
 
-func parseRepository(url string) {
+func hug(url string) {
 	fmt.Println("parsing repository: " + url)
 }

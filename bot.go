@@ -34,6 +34,6 @@ func main() {
 	for job := range jobs {
 		// jvt: check for new job
 		fmt.Println("got new job: " + job)
-		go parseRepository(job)
+		go hug(job)
 	}
 }
