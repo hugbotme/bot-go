@@ -54,22 +54,23 @@ func AddFinished(client redis.Conn, hug *Hug) error {
 func ConnectRedis(url string, auth string) redis.Conn {
 	redisClient, err := redis.Dial("tcp", url)
 	if err != nil {
-		log.Fatal("Redis client init failed:", err)
+		log.Fatal("Redis client init (connect) failed:", err)
 	}
+
+	if len(auth) == 0 {
+		return redisClient
+	}
+
 	if _, err := redisClient.Do("AUTH", auth); err != nil {
 		redisClient.Close()
-		os.Exit(2)
+		log.Fatal("Redis client init (auth) failed:", err)
 	}
+
 	return redisClient
 }
 
 func main() {
-	/*testFile, _ := ioutil.ReadFile("./README.md.1")
 	// jvt: @todo error handling?
-	processor, _ := newSpellCheckFileProcessor()
-	correctedContent := processor.processContent(testFile)
-	fmt.Println(correctedContent)
-	os.Exit(1)*/
 
 	// capture ctrl+c and stop execution
 	c := make(chan os.Signal, 1)
