@@ -1,4 +1,8 @@
 {
+  "git": {
+    "Name": "USERNAME",
+    "Email": "MAIL"
+  },
   "github": {
     "username": "USERNAME",
     "api-token": "TOKEN",

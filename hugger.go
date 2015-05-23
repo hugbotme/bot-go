@@ -8,7 +8,7 @@ import (
 )
 
 func hug(url string) {
-	fmt.Println("parsing repository: " + url)
+	fmt.Println("Parsing repository: " + url)
 
 	repoName := "karban"
 
@@ -24,7 +24,13 @@ func hug(url string) {
 		}
 	}
 
-	parser.CommitFile("Readme.md", lines)
+	branchname := "bugfix"
+
+	// TODO: ERROR HANDLING
+	branch, err := parser.CreateBranch(branchname)
+
+	parser.CommitFile(branch, branchname, "Readme.md", lines, "Fixing some typos")
+	parser.PullRequest("A friendly pull request")
 
 
 	files := []string{

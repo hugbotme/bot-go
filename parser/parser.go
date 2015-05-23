@@ -3,6 +3,7 @@ package parser
 import (
 	"bufio"
 	"errors"
+	"time"
 	"flag"
 	"fmt"
 	"github.com/google/go-github/github"
@@ -23,9 +24,12 @@ var (
 
 type Parser struct {
 	client             *repository.GithubClient
+	configuration		*config.Configuration
 	clonedProjectsPath string
 	username           string
 	repositoryname     string
+	signature *git.Signature
+	repopointer *git.Repository
 }
 
 const (
@@ -46,16 +50,23 @@ func NewParser(username, repositoryname string) Parser {
 		log.Fatal("Configuration initialisation failed:", err)
 	}
 
-	log.Println(config.Github)
-
 	client := repository.NewGithubClient(&config.Github)
 	clonedProjectsPath := "cloned_projects/"
 
+	signature := &git.Signature {
+		Name: config.Git.Name,
+		Email: config.Git.Email,
+		When: time.Now(),
+	}
+
 	return Parser{
 		client:             client,
+		configuration: 		config,
 		clonedProjectsPath: clonedProjectsPath,
 		username:           username,
 		repositoryname:     repositoryname,
+		signature: signature,
+		repopointer: nil,
 	}
 }
 
@@ -82,19 +93,84 @@ func (p Parser) GetFileContents(filename string) ([]string, error) {
 
 	log.Printf("Forked repo:" + *repo.CloneURL)
 
-	repoClone, err := git.Clone(*repo.CloneURL, p.clonedProjectsPath+p.repositoryname, &git.CloneOptions{})
+	repopointer, err := git.Clone(*repo.CloneURL, p.clonedProjectsPath+p.repositoryname, &git.CloneOptions{})
+	p.repopointer = repopointer
 
 	if err != nil {
 		log.Printf("Error during clone: %v\n", err)
 	}
 
-	log.Printf("%v", repoClone)
-
 	return p.ReadLines(p.clonedProjectsPath + p.repositoryname + "/" + filename)
 }
 
-func (p Parser) CommitFile(filename string, contents []string) {
-	fmt.Println("Commit " + filename)
+func (p Parser) CreateBranch(branchname string) (*git.Branch, error) {
+
+	head, err := p.repopointer.Head()
+	if err != nil {
+		return nil, err
+	}
+
+	headCommit, err := p.repopointer.LookupCommit(head.Target())
+	if err != nil {
+		return nil, err
+	}
+
+	return p.repopointer.CreateBranch(branchname, headCommit, false, p.signature, "Branch for " + branchname)
+}
+
+func (p Parser) CommitFile(branch *git.Branch, branchname string, filename string, contents []string, msg string) error {
+	filepath := p.clonedProjectsPath + p.repositoryname + "/" + filename
+
+	p.WriteLines(filepath, contents)
+	treeId, err := p.AddFilePath(filepath)
+
+	if err != nil {
+		return err
+	}
+	return p.Commit(branch, branchname, treeId, msg)
+}
+
+func (p Parser) PullRequest(msg string) {
+
+}
+
+func (p Parser) Commit(branch *git.Branch, branchname string, treeId *git.Oid, msg string) (error) {
+	tree, err := p.repopointer.LookupTree(treeId)
+	if err != nil {
+return err
+	}
+
+	commitTarget, err := p.repopointer.LookupCommit(branch.Target())
+	if err != nil {
+		return err
+	}
+
+	_, err = p.repopointer.CreateCommit("refs/heads/" + branchname, p.signature, p.signature, msg, tree, commitTarget)
+	return err
+}
+
+
+func (p Parser) AddFilePath(filepath string) (*git.Oid, error) {
+	idx, err := p.repopointer.Index()
+if err != nil {
+return nil, err
+}
+
+err = idx.AddByPath(filepath)
+if err != nil {
+return nil, err
+}
+
+treeId, err := idx.WriteTree()
+if err != nil {
+return nil, err
+}
+
+err = idx.Write()
+if err != nil {
+return nil, err
+}
+	return treeId, nil
 }
 
 
@@ -116,7 +192,7 @@ func (p Parser) ReadLines(path string) ([]string, error) {
 }
 
 // writeLines writes the lines to the given file.
-func (p Parser) WriteLines(lines []string, path string) error {
+func (p Parser) WriteLines(path string, lines []string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err

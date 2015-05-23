@@ -6,7 +6,13 @@ import (
 )
 
 type Configuration struct {
+	Git GitConfiguration `json:"git"`
 	Github GithubConfiguration `json:"github"`
+}
+
+type GitConfiguration struct {
+	Name	string		`json:"Name"`
+	Email	string		`json:"Email"`
 }
 
 type GithubConfiguration struct {
