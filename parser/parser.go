@@ -13,6 +13,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -142,21 +143,54 @@ func (p Parser) CommitFile(branch *git.Branch, branchname string, filename strin
 	return p.Commit(branch, branchname, treeId, msg)
 }
 
-func (p Parser) PullRequest(branchname, msg string) error {
+func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error) {
 
 	cbs := &git.RemoteCallbacks{
 		CredentialsCallback:      credentialsCallback,
 		CertificateCheckCallback: certificateCheckCallback,
 	}
 
-	fork, err := p.repopointer.CreateRemote("fork", "git@github.com:" + p.username + "/" + p.repositoryname + ".git")
+	fork, err := p.repopointer.CreateRemote("fork", "git@github.com:"+p.username+"/"+p.repositoryname+".git")
 
 	err = fork.SetCallbacks(cbs)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return fork.Push([]string{"refs/heads/" + branchname}, nil, p.signature, msg)
+	err = fork.Push([]string{"refs/heads/" + branchname}, nil, p.signature, msg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	head := branchname
+	base := "master"
+
+	title := p.configuration.Github.PRTemplate.Title
+	title = strings.Replace(title, "%title%", msg, 1)
+
+	body := strings.Join(p.configuration.Github.PRTemplate.Body, "\n")
+
+	// TODO: Maybe we'd like to do some fancy templating?
+	//body = strings.Replace(body, "%commit-msg%", msg, 1)
+	//body = strings.Replace(body, "%url%", m.Change.URL, 1)
+
+	pr := &github.NewPullRequest{
+		Title: &title,
+		Head:  &head,
+		Base:  &base,
+		Body:  &body,
+	}
+
+	// Do the pull request itself
+	prResult, resp, err := p.client.Client.PullRequests.Create(p.username, p.repositoryname, pr)
+
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	return prResult, nil
 }
 
 func (p Parser) Commit(branch *git.Branch, branchname string, treeId *git.Oid, msg string) error {
