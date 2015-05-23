@@ -130,7 +130,7 @@ func (p Parser) CreateBranch(branchname string) (*git.Branch, error) {
 	return p.repopointer.CreateBranch(branchname, headCommit, false, p.signature, "Branch for "+branchname)
 }
 
-func (p Parser) CommitFile(branch *git.Branch, branchname string, filename string, contents []string, msg string) error {
+func (p Parser) CommitFile(branch *git.Branch, branchname string, filename string, contents string, msg string) error {
 	filepath := p.clonedProjectsPath + p.repositoryname + "/" + filename
 
 	p.WriteLines(filepath, contents)
@@ -215,7 +215,7 @@ func (p Parser) ReadLines(path string) ([]string, error) {
 }
 
 // writeLines writes the lines to the given file.
-func (p Parser) WriteLines(path string, lines []string) error {
+func (p Parser) WriteLines(path string, lines string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
@@ -223,9 +223,7 @@ func (p Parser) WriteLines(path string, lines []string) error {
 	defer file.Close()
 
 	w := bufio.NewWriter(file)
-	for _, line := range lines {
-		fmt.Fprintln(w, line)
-	}
+	fmt.Fprintln(w, lines)
 	return w.Flush()
 }
 

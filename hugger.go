@@ -3,18 +3,30 @@ package main
 import (
 	"fmt"
 	"log"
-	//"gopkg.in/libgit2/git2go.v22"
 	"github.com/hugbotme/bot-go/parser"
 	"bytes"
+	netUrl "net/url"
+	"errors"
+	"strings"
 )
 
+type GitHubURL struct {
+	URL        *netUrl.URL
+	Owner      string
+	Repository string
+}
 
 func processHug(url *Hug) {
-	fmt.Println("parsing repository: " + url.URL)
+	fmt.Println("Parsing repository: " + url.URL)
 
-	repoName := "karban"
+	gitHubUrl, err := ParseGitHubURL(url.URL)
 
-	parser := parser.NewParser("mre", repoName)
+	if err != nil {
+		log.Printf("Error during url parsing: %v\n", err)
+		return
+	}
+
+	parser := parser.NewParser(gitHubUrl.Owner, gitHubUrl.Repository)
 
 	// jvt: @todo this could all be streamed through memory as a byte stream
 	lines, err := parser.GetFileContents("Readme.md")
@@ -35,29 +47,34 @@ func processHug(url *Hug) {
 		}
 
 		content := processor.processContent([]byte(buffer.String()))
-		fmt.Println("corrected content: " + string(content))
+
+		branchname := "bugfix"
+
+		// TODO: ERROR HANDLING
+		branch, err := parser.CreateBranch(branchname)
+		parser.CommitFile(branch, branchname, "Readme.md", content, "Fixing some typos")
+		parser.PullRequest(branchname, "A friendly pull request")
 	}
+}
 
-	branchname := "bugfix"
 
-	// TODO: ERROR HANDLING
-	branch, err := parser.CreateBranch(branchname)
-	parser.CommitFile(branch, branchname, "Readme.md", lines, "Fixing some typos")
-	parser.PullRequest(branchname, "A friendly pull request")
-
-	files := []string{
-		"test string one",
-		"another awesome test string",
-	}
-
-	processor, err := newSpellCheckFileProcessor()
+func ParseGitHubURL(rawurl string) (*GitHubURL, error) {
+	parsed, err := netUrl.Parse(rawurl)
 	if err != nil {
-		fmt.Errorf("could not get speller: %s", err.Error())
-		return
+		return nil, err
 	}
 
-	for _, file := range files {
-		content := processor.processContent([]byte(file))
-		fmt.Println("corrected content: " + string(content))
+	if parsed.Host != "github.com" {
+		return nil, errors.New("Not a GitHub URL")
 	}
+
+	splitted := strings.Split(parsed.Path, "/")
+	owner := splitted[1]
+	repository := splitted[2]
+
+	return &GitHubURL{
+		URL:        parsed,
+		Owner:      owner,
+		Repository: repository,
+	}, nil
 }
