@@ -108,7 +108,12 @@ func (spfp spellCheckFileProcessor) processWord (word string) string {
 		return word
 	} else {
 		fmt.Printf("Incorrect word, suggestions: %s\n", s.Join(suggestions, ", "))
-		// jvt: @todo choose suggestion
+
+		// jvt: @todo jup....
+		if len(suggestions) > 0 {
+			return suggestions[0]
+		}
+
 		return word
 	}
 }
