@@ -143,6 +143,9 @@ func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error)
 	}
 
 	fork, err := p.repopointer.CreateRemote("fork", "git@github.com:"+p.username+"/"+p.repositoryname+".git")
+	if err != nil {
+		return nil, err
+	}
 
 	err = fork.SetCallbacks(cbs)
 	if err != nil {
