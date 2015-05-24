@@ -124,7 +124,7 @@ func (p Parser) CommitFile(branch *git.Branch, branchname string, filename strin
 	return p.Commit(branch, branchname, treeId, msg)
 }
 
-func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error) {
+func (p Parser) PullRequest(branchname, msg, tweet_add string) (*github.PullRequest, error) {
 
 	cbs := &git.RemoteCallbacks{
 		CredentialsCallback: func(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
@@ -168,8 +168,16 @@ func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error)
 
 	body := strings.Join(p.configuration.Github.PRTemplate.Body, "\n")
 
+	commitmsg := "I found some typos in your README. I fixed them, I hope this helps.\n"
+	commitmsg += "\n"
+
+	if len(tweet_add) > 0 {
+		commitmsg += "\n"
+		commitmsg += tweet_add
+	}
+
 	// TODO: Maybe we'd like to do some fancy templating?
-	//body = strings.Replace(body, "%commit-msg%", msg, 1)
+	body = strings.Replace(body, "%commit-msg%", commitmsg, 1)
 	//body = strings.Replace(body, "%url%", m.Change.URL, 1)
 
 	pr := &github.NewPullRequest{

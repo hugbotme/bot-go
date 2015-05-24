@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/hugbotme/bot-go/config"
 	"github.com/hugbotme/bot-go/parser"
+	"github.com/hugbotme/bot-go/twitter"
 	"log"
 	netUrl "net/url"
 	"strings"
@@ -77,7 +78,17 @@ func processHug(url *Hug, config *config.Configuration, stopWordsFile string, pr
 			log.Println("Commit failed:", err)
 			return
 		}
-		_, err = parser.PullRequest(branchname, "A friendly pull request")
+
+		tweet_add := ""
+		if len(url.TweetID) > 0 {
+			tw_client := twitter.NewClient(config)
+			screenname, url := tw_client.GetScreennameAndLink(url.TweetID)
+			if len(screenname) > 0 && len(url) > 0 {
+				tweet_add = fmt.Sprintf("I scanned this repository after [@%s](%s) requested it on Twitter.", screenname, url)
+			}
+		}
+
+		_, err = parser.PullRequest(branchname, "I fixed a few typos", tweet_add)
 		if err != nil {
 			log.Println("PullRequest failed:", err)
 			return

@@ -6,9 +6,17 @@ import (
 )
 
 type Configuration struct {
-	Git    GitConfiguration    `json:"git"`
-	Github GithubConfiguration `json:"github"`
-	Redis  RedisConfiguration  `json:"redis"`
+	Twitter twitterConfiguration `json:"twitter"`
+	Git     GitConfiguration     `json:"git"`
+	Github  GithubConfiguration  `json:"github"`
+	Redis   RedisConfiguration   `json:"redis"`
+}
+
+type twitterConfiguration struct {
+	ConsumerKey       string `json:"consumer-key"`
+	ConsumerSecret    string `json:"consumer-secret"`
+	AccessToken       string `json:"access-token"`
+	AccessTokenSecret string `json:"access-token-secret"`
 }
 
 type GitConfiguration struct {
