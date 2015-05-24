@@ -107,10 +107,12 @@ func (spfp spellCheckFileProcessor) processWord (word string) string {
 	if (spellingCorrect) {
 		return word
 	} else {
-		fmt.Printf("Incorrect word, suggestions: %s\n", s.Join(suggestions, ", "))
+		//fmt.Printf("Incorrect word, suggestions: %s\n", s.Join(suggestions, ", "))
 
 		// jvt: @todo jup....
 		if len(suggestions) > 0 {
+			fmt.Println("Replacing \"" + word + "\" with \"" + suggestions[0] + "\"")
+			fmt.Printf("Alternative suggestions: %s\n", s.Join(suggestions, ", "))
 			return suggestions[0]
 		}
 
@@ -125,6 +127,6 @@ func (spfp spellCheckFileProcessor) checkSpelling (word string) (bool, []string)
 	}
 
 	suggestions := spfp.spellChecker.Suggest(word)
-	fmt.Printf("Spelling mistake:\"" + word + "\" suggestions: %s\n", s.Join(suggestions, ", "))
+	//fmt.Printf("Spelling mistake:\"" + word + "\" suggestions: %s\n", s.Join(suggestions, ", "))
 	return false, suggestions
 }
