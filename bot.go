@@ -17,6 +17,7 @@ import (
 
 var (
 	flagConfigFile *string
+	flagTestFile *string
 	flagPidFile    *string
 	flagVersion    *bool
 )
@@ -36,6 +37,7 @@ type Hug struct {
 func init() {
 	flagConfigFile = flag.String("config", "", "Configuration file")
 	flagPidFile = flag.String("pidfile", "", "Write the process id into a given file")
+	flagTestFile = flag.String("testfile", "", "Spell check test file")
 	flagVersion = flag.Bool("version", false, "Outputs the version number and exits")
 }
 
@@ -115,12 +117,13 @@ func main() {
 		log.Fatal("Configuration initialisation failed:", err)
 	}
 
-	// jvt: @todo error handling?
-	testFile, _ := ioutil.ReadFile("./README.md.1")
-	processor, _ := newSpellCheckFileProcessor()
-	processor.processContent(testFile)
-	//fmt.Println(correctedContent)
-	os.Exit(1)
+	if len(*flagTestFile) > 0 {
+		// jvt: @todo error handling?
+		testFile, _ := ioutil.ReadFile(*flagTestFile)
+		processor, _ := newSpellCheckFileProcessor()
+		processor.processContent(testFile)
+		os.Exit(1)
+	}
 
 	// capture ctrl+c and stop execution
 	c := make(chan os.Signal, 1)
