@@ -155,10 +155,10 @@ func (spfp spellCheckFileProcessor) processWord (word string) string {
 
 		// jvt: @todo jup....
 		if len(suggestions) > 0 {
-			fmt.Printf("suggestions: %s\n", s.Join(suggestions, ", "))
-
-			fmt.Println("Replacing \"" + word + "\" with \"" + suggestions[0] + "\"")
-			return suggestions[0]
+			//fmt.Printf("suggestions: %s\n", s.Join(suggestions, ", "))
+			preferredWord := spfp.checkForPreferred(word, suggestions)
+			fmt.Println("Replacing \"" + word + "\" with \"" + preferredWord + "\"")
+			return preferredWord
 		}
 
 		return word
@@ -173,6 +173,20 @@ func (spfp spellCheckFileProcessor) checkForStopword (word string) bool {
 	}
 
 	return false
+}
+
+func (spfp spellCheckFileProcessor) checkForPreferred (word string, suggestions []string) string {
+	for _, suggestion := range suggestions {
+		for _, preferred := range spfp.probableWords {
+			if suggestion == preferred {
+				fmt.Println("found preferred word")
+				return preferred
+			}
+		}
+	}
+
+	// jvt: if we didn't find anything preferred, just return first suggestion
+	return suggestions[0]
 }
 
 func (spfp spellCheckFileProcessor) checkSpelling (word string) (bool, []string) {

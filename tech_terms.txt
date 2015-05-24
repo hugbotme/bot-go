@@ -111,6 +111,8 @@ crash
 crawler
 CRC
 cross-platform
+cross-browser
+community-curated
 cryptanalysis
 cryptic
 cryptic password
@@ -927,3 +929,4 @@ YQL
 Zeno
 ZPL
 zone
+hugbot
