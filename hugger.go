@@ -30,7 +30,7 @@ func processHug(url *Hug, config *config.Configuration) {
 	parser := parser.NewParser(gitHubUrl.Owner, gitHubUrl.Repository, config)
 
 	// jvt: @todo this could all be streamed through memory as a byte stream
-	lines, err := parser.GetFileContents("Readme.md")
+	lines, err := parser.GetReadme()
 
 	var buffer bytes.Buffer
 	if err != nil {

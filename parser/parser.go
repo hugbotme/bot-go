@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"errors"
 )
 
 type Parser struct {
@@ -70,6 +71,20 @@ func (p Parser) ForkRepository(username, repo string) (*github.Repository, *gith
 	}
 
 	return p.client.Client.Repositories.CreateFork(username, repo, &forkOptions)
+}
+
+func (p Parser) GetReadme() ([]string, error) {
+
+	readmeFiles := []string{"README.md", "README.txt", "README", "Readme.md", "Readme.txt", "Readme"}
+
+	for _, filename := range readmeFiles {
+		if _, err := os.Stat(filename); err == nil {
+			log.Printf("Readme file exists; processing...")
+			return p.GetFileContents(filename)
+		}
+	}
+
+	return nil, errors.New("Could not find README file :,(")
 }
 
 func (p Parser) GetFileContents(filename string) ([]string, error) {
