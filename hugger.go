@@ -49,7 +49,7 @@ func processHug(url *Hug, config *config.Configuration) {
 
 	var buffer bytes.Buffer
 	if err != nil {
-		log.Printf("Error during clone: %v\n", err)
+		log.Printf("Error reading README: %v\n", err)
 	} else {
 		for i, line := range lines {
 			fmt.Println(i, line)

@@ -36,7 +36,6 @@ func (p *Parser) Clone(repo *github.Repository) error {
 	p.repopointer = repopointer
 
 	if err != nil {
-		log.Printf("Error during clone: %v\n", err)
 		return err
 	}
 	return nil
@@ -96,7 +95,8 @@ func (p Parser) GetReadme() ([]string, error) {
 	readmeFiles := []string{"README.md", "README.txt", "README", "Readme.md", "Readme.txt", "Readme"}
 
 	for _, filename := range readmeFiles {
-		if _, err := os.Stat(filename); err == nil {
+		path := p.clonedProjectsPath + p.repositoryname + "/" + filename
+		if _, err := os.Stat(path); err == nil {
 			log.Printf("Readme file exists; processing...")
 			return p.GetFileContents(filename)
 		}
