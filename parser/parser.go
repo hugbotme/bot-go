@@ -32,6 +32,7 @@ func (p *Parser) GetRepositoryname() string {
 }
 
 func (p *Parser) Clone(repo *github.Repository) error {
+	os.RemoveAll(p.clonedProjectsPath + p.repositoryname)
 	repopointer, err := git.Clone(*repo.CloneURL, p.clonedProjectsPath+p.repositoryname, &git.CloneOptions{})
 	p.repopointer = repopointer
 
@@ -62,18 +63,6 @@ func NewParser(username, repositoryname string, config *config.Configuration) Pa
 		signature:          signature,
 		repopointer:        nil,
 	}
-}
-
-func credentialsCallback(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
-	ret, cred := git.NewCredSshKeyFromAgent(username)
-	return git.ErrorCode(ret), &cred
-}
-
-func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
-	if hostname != "github.com" {
-		return git.ErrUser
-	}
-	return 0
 }
 
 func (p Parser) ForkRepository() (*github.Repository, *github.Response, error) {
@@ -138,11 +127,22 @@ func (p Parser) CommitFile(branch *git.Branch, branchname string, filename strin
 func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error) {
 
 	cbs := &git.RemoteCallbacks{
-		CredentialsCallback:      credentialsCallback,
-		CertificateCheckCallback: certificateCheckCallback,
+		CredentialsCallback: func(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
+			ret, cred := git.NewCredUserpassPlaintext(p.configuration.Github.Username, p.configuration.Github.APIToken)
+			return git.ErrorCode(ret), &cred
+		},
+		CertificateCheckCallback: func(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
+			if hostname != "github.com" {
+				return git.ErrUser
+			}
+			return 0
+		},
 	}
 
-	fork, err := p.repopointer.CreateRemote("fork", "git@github.com:"+p.username+"/"+p.repositoryname+".git")
+	user := p.configuration.Github.Username
+	remote := "https://github.com/" + user + "/" + p.repositoryname + ".git"
+	log.Println("remote", remote)
+	fork, err := p.repopointer.CreateRemote("fork", remote)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,9 @@ func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error)
 		return nil, err
 	}
 
-	head := branchname
+	log.Println("Pushed to", branchname)
+
+	head := user + ":" + branchname
 	base := "master"
 
 	title := p.configuration.Github.PRTemplate.Title
@@ -176,6 +178,8 @@ func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error)
 		Base:  &base,
 		Body:  &body,
 	}
+
+	log.Println("new PullRequest", *pr, head, base)
 
 	// Do the pull request itself
 	prResult, resp, err := p.client.Client.PullRequests.Create(p.username, p.repositoryname, pr)
