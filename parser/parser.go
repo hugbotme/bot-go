@@ -3,7 +3,6 @@ package parser
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"github.com/google/go-github/github"
 	"github.com/hugbotme/bot-go/config"
 	"github.com/hugbotme/bot-go/repository"
@@ -12,6 +11,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"io/ioutil"
 )
 
 type Parser struct {
@@ -116,7 +116,7 @@ func (p Parser) CreateBranch(branchname string) (*git.Branch, error) {
 
 func (p Parser) CommitFile(branch *git.Branch, branchname string, filename string, contents string, msg string) error {
 	filepath := p.clonedProjectsPath + p.repositoryname + "/" + filename
-	p.WriteLines(filepath, contents)
+	ioutil.WriteFile(filepath, []byte(contents), 0644)
 	treeId, err := p.AddFilePath(filename)
 
 	if err != nil {
@@ -254,17 +254,4 @@ func (p Parser) ReadLines(path string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, scanner.Err()
-}
-
-// writeLines writes the lines to the given file.
-func (p Parser) WriteLines(path string, lines string) error {
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	w := bufio.NewWriter(file)
-	fmt.Fprintln(w, lines)
-	return w.Flush()
 }

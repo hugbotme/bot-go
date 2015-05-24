@@ -124,7 +124,7 @@ func main() {
 		// jvt: @todo error handling?
 		testFile, _ := ioutil.ReadFile(*flagTestFile)
 		processor, _ := newSpellCheckFileProcessor(*flagStopWordsFile, *flagProbableWordsFile)
-		processor.processContent(testFile)
+		ioutil.WriteFile("test.txt", []byte(processor.processContent(testFile)), 0644)
 		os.Exit(1)
 	}
 
