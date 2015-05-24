@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/google/go-github/github"
 	"github.com/hugbotme/bot-go/config"
@@ -11,7 +12,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"errors"
 )
 
 type Parser struct {
@@ -22,6 +22,24 @@ type Parser struct {
 	repositoryname     string
 	signature          *git.Signature
 	repopointer        *git.Repository
+}
+
+func (p *Parser) GetClonedProjectsPath() string {
+	return p.clonedProjectsPath
+}
+func (p *Parser) GetRepositoryname() string {
+	return p.repositoryname
+}
+
+func (p *Parser) Clone(repo *github.Repository) error {
+	os.RemoveAll(p.clonedProjectsPath + p.repositoryname)
+	repopointer, err := git.Clone(*repo.CloneURL, p.clonedProjectsPath+p.repositoryname, &git.CloneOptions{})
+	p.repopointer = repopointer
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Init function to define arguments
@@ -47,19 +65,7 @@ func NewParser(username, repositoryname string, config *config.Configuration) Pa
 	}
 }
 
-func credentialsCallback(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
-	ret, cred := git.NewCredSshKeyFromAgent(username)
-	return git.ErrorCode(ret), &cred
-}
-
-func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
-	if hostname != "github.com" {
-		return git.ErrUser
-	}
-	return 0
-}
-
-func (p Parser) ForkRepository(username, repo string) (*github.Repository, *github.Response, error) {
+func (p Parser) ForkRepository() (*github.Repository, *github.Response, error) {
 	// list all repositories for the authenticated user
 	//repos, _, err := githubClient.Client.Repositories.List("", nil)
 
@@ -70,7 +76,7 @@ func (p Parser) ForkRepository(username, repo string) (*github.Repository, *gith
 		"",
 	}
 
-	return p.client.Client.Repositories.CreateFork(username, repo, &forkOptions)
+	return p.client.Client.Repositories.CreateFork(p.username, p.repositoryname, &forkOptions)
 }
 
 func (p Parser) GetReadme() ([]string, error) {
@@ -78,7 +84,8 @@ func (p Parser) GetReadme() ([]string, error) {
 	readmeFiles := []string{"README.md", "README.txt", "README", "Readme.md", "Readme.txt", "Readme"}
 
 	for _, filename := range readmeFiles {
-		if _, err := os.Stat(filename); err == nil {
+		path := p.clonedProjectsPath + p.repositoryname + "/" + filename
+		if _, err := os.Stat(path); err == nil {
 			log.Printf("Readme file exists; processing...")
 			return p.GetFileContents(filename)
 		}
@@ -88,21 +95,6 @@ func (p Parser) GetReadme() ([]string, error) {
 }
 
 func (p Parser) GetFileContents(filename string) ([]string, error) {
-	repo, _, err := p.ForkRepository(p.username, p.repositoryname)
-
-	if err != nil {
-		log.Printf("Error during fork: %v\n", err)
-	}
-
-	log.Printf("Forked repo:" + *repo.CloneURL)
-
-	repopointer, err := git.Clone(*repo.CloneURL, p.clonedProjectsPath+p.repositoryname, &git.CloneOptions{})
-	p.repopointer = repopointer
-
-	if err != nil {
-		log.Printf("Error during clone: %v\n", err)
-	}
-
 	return p.ReadLines(p.clonedProjectsPath + p.repositoryname + "/" + filename)
 }
 
@@ -123,9 +115,8 @@ func (p Parser) CreateBranch(branchname string) (*git.Branch, error) {
 
 func (p Parser) CommitFile(branch *git.Branch, branchname string, filename string, contents string, msg string) error {
 	filepath := p.clonedProjectsPath + p.repositoryname + "/" + filename
-
 	p.WriteLines(filepath, contents)
-	treeId, err := p.AddFilePath(filepath)
+	treeId, err := p.AddFilePath(filename)
 
 	if err != nil {
 		return err
@@ -136,11 +127,25 @@ func (p Parser) CommitFile(branch *git.Branch, branchname string, filename strin
 func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error) {
 
 	cbs := &git.RemoteCallbacks{
-		CredentialsCallback:      credentialsCallback,
-		CertificateCheckCallback: certificateCheckCallback,
+		CredentialsCallback: func(url string, username string, allowedTypes git.CredType) (git.ErrorCode, *git.Cred) {
+			ret, cred := git.NewCredUserpassPlaintext(p.configuration.Github.Username, p.configuration.Github.APIToken)
+			return git.ErrorCode(ret), &cred
+		},
+		CertificateCheckCallback: func(cert *git.Certificate, valid bool, hostname string) git.ErrorCode {
+			if hostname != "github.com" {
+				return git.ErrUser
+			}
+			return 0
+		},
 	}
 
-	fork, err := p.repopointer.CreateRemote("fork", "git@github.com:"+p.username+"/"+p.repositoryname+".git")
+	user := p.configuration.Github.Username
+	remote := "https://github.com/" + user + "/" + p.repositoryname + ".git"
+	log.Println("remote", remote)
+	fork, err := p.repopointer.CreateRemote("fork", remote)
+	if err != nil {
+		return nil, err
+	}
 
 	err = fork.SetCallbacks(cbs)
 	if err != nil {
@@ -153,7 +158,9 @@ func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error)
 		return nil, err
 	}
 
-	head := branchname
+	log.Println("Pushed to", branchname)
+
+	head := user + ":" + branchname
 	base := "master"
 
 	title := p.configuration.Github.PRTemplate.Title
@@ -171,6 +178,8 @@ func (p Parser) PullRequest(branchname, msg string) (*github.PullRequest, error)
 		Base:  &base,
 		Body:  &body,
 	}
+
+	log.Println("new PullRequest", *pr, head, base)
 
 	// Do the pull request itself
 	prResult, resp, err := p.client.Client.PullRequests.Create(p.username, p.repositoryname, pr)

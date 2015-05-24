@@ -29,15 +29,30 @@ func processHug(url *Hug, config *config.Configuration) {
 
 	parser := parser.NewParser(gitHubUrl.Owner, gitHubUrl.Repository, config)
 
+	repo, _, err := parser.ForkRepository()
+	if err != nil {
+		log.Printf("Error during fork: %v\n", err)
+		return
+	}
+
+	log.Printf("Forked repo:" + *repo.CloneURL)
+	log.Printf("Clone path:" + parser.GetClonedProjectsPath() + parser.GetRepositoryname())
+
+	err = parser.Clone(repo)
+	if err != nil {
+		log.Printf("Error during clone: %v\n", err)
+		return
+	}
+
 	// jvt: @todo this could all be streamed through memory as a byte stream
 	lines, err := parser.GetReadme()
 
 	var buffer bytes.Buffer
 	if err != nil {
-		log.Printf("Error during clone: %v\n", err)
+		log.Printf("Error reading README: %v\n", err)
 	} else {
-		for i, line := range lines {
-			fmt.Println(i, line)
+		for _, line := range lines {
+			//fmt.Println(i, line)
 			buffer.WriteString(line)
 		}
 
@@ -53,8 +68,20 @@ func processHug(url *Hug, config *config.Configuration) {
 
 		// TODO: ERROR HANDLING
 		branch, err := parser.CreateBranch(branchname)
-		parser.CommitFile(branch, branchname, "Readme.md", content, "Fixing some typos")
-		parser.PullRequest(branchname, "A friendly pull request")
+		if err != nil {
+			log.Println("CreateBranch failed:", err)
+			return
+		}
+		err = parser.CommitFile(branch, branchname, "README.md", content, "Fixing some typos")
+		if err != nil {
+			log.Println("Commit failed:", err)
+			return
+		}
+		_, err = parser.PullRequest(branchname, "A friendly pull request")
+		if err != nil {
+			log.Println("PullRequest failed:", err)
+			return
+		}
 	}
 }
 

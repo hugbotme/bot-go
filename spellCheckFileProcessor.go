@@ -33,9 +33,10 @@ func (spfp spellCheckFileProcessor) processContent (content []byte) string {
 	var buffer bytes.Buffer
 	var wordBuffer bytes.Buffer
 	syntaxNestingLevel := 0
+	contentLength := len(content)
 
 	// jvt: start looping content bytes
-	for _, b := range content {
+	for index, b := range content {
 		//fmt.Println(string(b))
 		if spfp.isMarkdownSyntaxOpeningChar(b) {
 			//fmt.Println("entering nesting level")
@@ -57,11 +58,16 @@ func (spfp spellCheckFileProcessor) processContent (content []byte) string {
 			// jvt: we're ignoring content, just copy
 			buffer.WriteByte(b)
 		} else {
-			isWordEndingChar := spfp.isWordEndingChar(b)
+			var isWordEndingChar bool
+			if index > 0 && index < contentLength {
+				isWordEndingChar = spfp.isWordEndingChar(b, content[index - 1], content[index + 1])
+			} else {
+				isWordEndingChar = spfp.isWordEndingChar(b)
+			}
 
 			// jvt: check for end of word
 			if wordBuffer.Len() > 0 && isWordEndingChar {
-				//fmt.Println("found word, processing...")
+				//fmt.Println("found word " + wordBuffer.String())
 				// jvt: process word & write back to buffer
 				buffer.WriteString(spfp.processWord(wordBuffer.String()))
 
@@ -95,11 +101,30 @@ func (spfp spellCheckFileProcessor) isMarkdownSyntaxClosingChar (b byte) bool {
 	return char == "]" || char == ")" || char == "´"
 }
 
-func (spfp spellCheckFileProcessor) isWordEndingChar (b byte) bool {
+func (spfp spellCheckFileProcessor) isWordEndingChar (chars ...byte) bool {
 	// jvt: @todo huh? byte -> string -> byte array type case is fine, but byte to byte array type cast not? missing something stupid here....
-	char := string(b)
-	matched, _ := regexp.Match("[A-za-z-]", []byte(char))
+	// jvt: we always get the first param
+	char := string(chars[0])
+
+	var matched bool
+	if len(chars) > 1 && spfp.isLookForwardAndBackChar(char) {
+		//fmt.Println("checking for contraction " + char + string(chars[1]) + string(chars[2]))
+		// jvt: try to detect contraction
+		matched = spfp.matchLetter(string(chars[1])) && spfp.matchLetter(string(chars[2]))
+	} else {
+		matched = spfp.matchLetter(char)
+	}
+
 	return !matched
+}
+
+func (spfp spellCheckFileProcessor) matchLetter (char string) bool {
+	matched, _ := regexp.Match("[A-Za-z]", []byte(char))
+	return matched
+}
+
+func (spfp spellCheckFileProcessor) isLookForwardAndBackChar (char string) bool {
+	return char == "'" || char == "-"
 }
 
 func (spfp spellCheckFileProcessor) processWord (word string) string {
