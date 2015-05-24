@@ -14,7 +14,8 @@ active
 address
 aggregate data
 alias
-aliasing and anti-aliasing
+aliasing
+anti-aliasing
 alphanumeric
 alt tag
 alt text
@@ -23,8 +24,7 @@ annotations
 anomaly
 anonymous FTP
 anonymous posting
-anti-
-AOL winsock
+AOL
 Apple key
 application
 architecture
@@ -38,7 +38,6 @@ attribute
 AUP
 author
 authorization
-average time per page request
 back end
 back slash
 backdoor
@@ -53,7 +52,7 @@ BinHex
 biometrics
 black box model
 blue screen of death
-BMP or .bmp
+BSOD
 body
 BOOF
 bps
@@ -68,7 +67,8 @@ C shell
 cache or caching
 carbon footprint
 case sensitive
-CBT (Computer Based Training)
+CBT
+Computer Based Training
 ccTLD
 CD-ROM
 CGI form
@@ -91,7 +91,8 @@ co-location
 code or coding
 cold potato routing
 COM
-com or .com
+com
+.com
 COM port
 command line
 compatible or compatibility
@@ -168,9 +169,10 @@ disc
 disk
 distributed computing
 distribution
-DLL or .dll
+DLL
+dll
+.dll
 DLP
-DNA barcoding
 DNS
 docs
 document
@@ -240,11 +242,11 @@ gigabit
 gigabyte
 glitch
 gobbledygook
-gov or .gov
-grabber hand
+gov
+.gov
 Graffiti
-grand challenge
-graphic or graphics
+graphic
+graphics
 GUI
 handshake
 handwriting recognition
@@ -270,7 +272,8 @@ icon
 illegal
 image
 imagemap
-IMG SRC or img src
+IMG SRC
+img src
 import
 in-line image
 inbox
@@ -299,8 +302,11 @@ iscrape
 issue
 IT
 jaggies
-just-in-time (JIT)
-K or KB
+just-in-time
+JIT
+K
+KB
+kb
 Kbps
 kernel
 key
@@ -328,7 +334,8 @@ Mbps
 MD5 authentication
 mega-
 megabyte
-megahertz (MHz)
+megahertz
+MHz
 menu
 menu bar
 message board
@@ -337,7 +344,8 @@ micro-
 microsite
 middleware
 MIDI
-mil or .mil
+mil
+.mil
 MIME
 MIP Mapping
 mips
@@ -355,12 +363,10 @@ MS-DOS
 multi-user
 multimedia
 multitasking
-multitiered application
+multitiered
 music-swapping
 MX record
-nano-
 nanosecond
-NASCII art
 net neutrality
 netsplit
 network computing
@@ -368,14 +374,12 @@ newsfeed
 nibble
 nonvolatile
 obsolete
-OH
 OLED
 open
 open access
 open source
 optical network
 optimize
-org or .org
 orphans
 OSP
 outage
@@ -387,7 +391,9 @@ parse
 password
 PC-compatible
 peer-to-peer networking
-personalize or personalization
+peer-to-peer
+personalize
+personalization
 peta-
 petabyte
 pico-
@@ -421,6 +427,7 @@ rain fade
 README
 reboot
 Red Book
+red hat
 Red Brick Intelligent SQL
 redirect
 reformat
@@ -455,6 +462,9 @@ sendmail
 server error
 server-side
 server-side include
+SSI
+ESI
+H-Include
 shareware
 shell account
 shortcut
@@ -465,10 +475,12 @@ signal-to-noise ratio
 signature file
 silicon
 site search
-sitemap or site map
+sitemap
+site map
 smurf
 sniffer
-socket or sockets
+socket
+sockets
 soft copy
 sort
 source code
@@ -536,12 +548,13 @@ virtual directory
 wallpaper
 wideband
 wiki
-wild card or *.*
+wild card
 window
 winsock
 wizard
 yottabyte
 yoyo mode
+YOLO
 zapping
 zone
 A# .NET
@@ -930,3 +943,7 @@ Zeno
 ZPL
 zone
 hugbot
+utf-8
+UTF-8
+github
+Github
