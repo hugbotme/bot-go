@@ -1,17 +1,17 @@
 package main
 
-import(
+import (
+	"bytes"
 	"fmt"
 	aspell "github.com/hugbotme/go-aspell"
-	s "strings"
-	"bytes"
-	"regexp"
 	"io/ioutil"
+	"regexp"
+	s "strings"
 )
 
 type spellCheckFileProcessor struct {
-	spellChecker aspell.Speller
-	stopWords []string
+	spellChecker  aspell.Speller
+	stopWords     []string
 	probableWords []string
 }
 
@@ -33,8 +33,8 @@ func newSpellCheckFileProcessor(stopWordsFile string, probableWordsFile string) 
 	probableWordsContent, _ := ioutil.ReadFile(probableWordsFile)
 
 	return spellCheckFileProcessor{
-		spellChecker: speller,
-		stopWords: s.Split(string(stopWordsContent), "\n"),
+		spellChecker:  speller,
+		stopWords:     s.Split(string(stopWordsContent), "\n"),
 		probableWords: s.Split(string(probableWordsContent), "\n"),
 	}, err
 }
@@ -43,7 +43,7 @@ func newSpellCheckFileProcessor(stopWordsFile string, probableWordsFile string) 
  * run a spell check on passed content
  * passes back original content if an error occurs
  */
-func (spfp spellCheckFileProcessor) processContent (content []byte) string {
+func (spfp spellCheckFileProcessor) processContent(content []byte) string {
 	var buffer bytes.Buffer
 	var wordBuffer bytes.Buffer
 	syntaxNestingLevel := 0
@@ -54,10 +54,10 @@ func (spfp spellCheckFileProcessor) processContent (content []byte) string {
 		//fmt.Println(string(b))
 		if spfp.isMarkdownSyntaxOpeningChar(b) {
 			//fmt.Println("entering nesting level")
-			syntaxNestingLevel ++
+			syntaxNestingLevel++
 		} else if spfp.isMarkdownSyntaxClosingChar(b) {
 			//fmt.Println("leaving nesting level")
-			syntaxNestingLevel --
+			syntaxNestingLevel--
 
 			// jvt: write byte to buffer
 			buffer.WriteByte(b)
@@ -67,7 +67,7 @@ func (spfp spellCheckFileProcessor) processContent (content []byte) string {
 		}
 
 		// jvt: @todo values under 0 most likely mean invalid markdown, ignoring for now
-		if (syntaxNestingLevel > 0) {
+		if syntaxNestingLevel > 0 {
 			//fmt.Println("in nesting level")
 			// jvt: we're ignoring content, just copy
 			buffer.WriteByte(b)
@@ -93,7 +93,7 @@ func (spfp spellCheckFileProcessor) processContent (content []byte) string {
 				wordBuffer.WriteByte(b)
 			}
 
-			if (isWordEndingChar) {
+			if isWordEndingChar {
 				//fmt.Println("word-ending char")
 				// jvt: write word-ending byte to buffer
 				buffer.WriteByte(b)
@@ -105,17 +105,17 @@ func (spfp spellCheckFileProcessor) processContent (content []byte) string {
 	return buffer.String()
 }
 
-func (spfp spellCheckFileProcessor) isMarkdownSyntaxOpeningChar (b byte) bool {
+func (spfp spellCheckFileProcessor) isMarkdownSyntaxOpeningChar(b byte) bool {
 	char := string(b)
 	return char == "[" || char == "(" || char == "`"
 }
 
-func (spfp spellCheckFileProcessor) isMarkdownSyntaxClosingChar (b byte) bool {
+func (spfp spellCheckFileProcessor) isMarkdownSyntaxClosingChar(b byte) bool {
 	char := string(b)
 	return char == "]" || char == ")" || char == "´"
 }
 
-func (spfp spellCheckFileProcessor) isWordEndingChar (chars ...byte) bool {
+func (spfp spellCheckFileProcessor) isWordEndingChar(chars ...byte) bool {
 	// jvt: @todo huh? byte -> string -> byte array type case is fine, but byte to byte array type cast not? missing something stupid here....
 	// jvt: we always get the first param
 	char := string(chars[0])
@@ -132,23 +132,23 @@ func (spfp spellCheckFileProcessor) isWordEndingChar (chars ...byte) bool {
 	return !matched
 }
 
-func (spfp spellCheckFileProcessor) matchLetter (char string) bool {
+func (spfp spellCheckFileProcessor) matchLetter(char string) bool {
 	matched, _ := regexp.Match("[A-Za-z]", []byte(char))
 	return matched
 }
 
-func (spfp spellCheckFileProcessor) isLookForwardAndBackChar (char string) bool {
+func (spfp spellCheckFileProcessor) isLookForwardAndBackChar(char string) bool {
 	return char == "'" || char == "-"
 }
 
-func (spfp spellCheckFileProcessor) processWord (word string) string {
+func (spfp spellCheckFileProcessor) processWord(word string) string {
 	// jvt: check for stop word
 	if spfp.checkForStopword(word) {
 		return word
 	}
 
 	spellingCorrect, suggestions := spfp.checkSpelling(word)
-	if (spellingCorrect) {
+	if spellingCorrect {
 		return word
 	} else {
 		//fmt.Printf("Incorrect word, suggestions: %s\n", s.Join(suggestions, ", "))
@@ -165,9 +165,9 @@ func (spfp spellCheckFileProcessor) processWord (word string) string {
 	}
 }
 
-func (spfp spellCheckFileProcessor) checkForStopword (word string) bool {
+func (spfp spellCheckFileProcessor) checkForStopword(word string) bool {
 	for _, stopword := range spfp.stopWords {
-		if (word == stopword) {
+		if word == stopword {
 			return true
 		}
 	}
@@ -175,7 +175,7 @@ func (spfp spellCheckFileProcessor) checkForStopword (word string) bool {
 	return false
 }
 
-func (spfp spellCheckFileProcessor) checkForPreferred (suggestions []string) string {
+func (spfp spellCheckFileProcessor) checkForPreferred(suggestions []string) string {
 	for _, suggestion := range suggestions {
 		for _, preferred := range spfp.probableWords {
 			if suggestion == preferred {
@@ -189,7 +189,7 @@ func (spfp spellCheckFileProcessor) checkForPreferred (suggestions []string) str
 	return suggestions[0]
 }
 
-func (spfp spellCheckFileProcessor) checkSpelling (word string) (bool, []string) {
+func (spfp spellCheckFileProcessor) checkSpelling(word string) (bool, []string) {
 	if spfp.spellChecker.Check(word) {
 		//fmt.Print("OK\n")
 		return true, nil
