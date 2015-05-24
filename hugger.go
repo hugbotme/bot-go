@@ -77,7 +77,11 @@ func processHug(url *Hug, config *config.Configuration) {
 			log.Println("Commit failed:", err)
 			return
 		}
-		parser.PullRequest(branchname, "A friendly pull request")
+		_, err = parser.PullRequest(branchname, "A friendly pull request")
+		if err != nil {
+			log.Println("PullRequest failed:", err)
+			return
+		}
 	}
 }
 
