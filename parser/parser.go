@@ -7,11 +7,11 @@ import (
 	"github.com/hugbotme/bot-go/config"
 	"github.com/hugbotme/bot-go/repository"
 	"github.com/libgit2/git2go"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 	"time"
-	"io/ioutil"
 )
 
 type Parser struct {
@@ -79,7 +79,7 @@ func (p Parser) ForkRepository() (*github.Repository, *github.Response, error) {
 	return p.client.Client.Repositories.CreateFork(p.username, p.repositoryname, &forkOptions)
 }
 
-func (p Parser) GetReadme() (string, []string, error) {
+func (p Parser) GetReadme() (string, []byte, error) {
 
 	readmeFiles := []string{"README.md", "README.txt", "README", "Readme.md", "Readme.txt", "Readme"}
 
@@ -95,8 +95,8 @@ func (p Parser) GetReadme() (string, []string, error) {
 	return "", nil, errors.New("Could not find README file :,(")
 }
 
-func (p Parser) GetFileContents(filename string) ([]string, error) {
-	return p.ReadLines(p.clonedProjectsPath + p.repositoryname + "/" + filename)
+func (p Parser) GetFileContents(filename string) ([]byte, error) {
+	return ioutil.ReadFile(p.clonedProjectsPath + p.repositoryname + "/" + filename)
 }
 
 func (p Parser) CreateBranch(branchname string) (*git.Branch, error) {
@@ -115,6 +115,7 @@ func (p Parser) CreateBranch(branchname string) (*git.Branch, error) {
 }
 
 func (p Parser) CommitFile(branch *git.Branch, branchname string, filename string, contents string, msg string) error {
+	log.Println("CommitFile for", branchname, "on file", filename)
 	filepath := p.clonedProjectsPath + p.repositoryname + "/" + filename
 	ioutil.WriteFile(filepath, []byte(contents), 0644)
 	treeId, err := p.AddFilePath(filename)

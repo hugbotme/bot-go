@@ -61,22 +61,21 @@ func processHug(url *Hug, config *config.Configuration, stopWordsFile string, pr
 	// jvt: @todo this could all be streamed through memory as a byte stream
 	filename, lines, err := parser.GetReadme()
 
-	var buffer bytes.Buffer
 	if err != nil {
 		log.Printf("Error reading README: %v\n", err)
 	} else {
-		for _, line := range lines {
-			//fmt.Println(i, line)
-			buffer.WriteString(line)
-		}
-
 		processor, err := newSpellCheckFileProcessor(stopWordsFile, probableWordsFile)
 		if err != nil {
 			fmt.Errorf("could not get speller: %s", err.Error())
 			return
 		}
 
-		content := processor.processContent([]byte(buffer.String()))
+		content := processor.processContent(lines)
+
+		if bytes.Compare(lines, []byte(content)) == 0 {
+			log.Println("Processor didn't change anything. Skipping it.")
+			return
+		}
 
 		branchname := "bugfix"
 
