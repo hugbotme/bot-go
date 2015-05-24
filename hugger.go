@@ -72,7 +72,7 @@ func processHug(url *Hug, config *config.Configuration) {
 			log.Println("CreateBranch failed:", err)
 			return
 		}
-		err = parser.CommitFile(branch, branchname, "README.md", "foobar", "Fixing some typos")
+		err = parser.CommitFile(branch, branchname, "README.md", content, "Fixing some typos")
 		if err != nil {
 			log.Println("Commit failed:", err)
 			return
