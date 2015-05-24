@@ -46,7 +46,7 @@ func processHug(url *Hug, config *config.Configuration, stopWordsFile string, pr
 	}
 
 	// jvt: @todo this could all be streamed through memory as a byte stream
-	lines, err := parser.GetReadme()
+	filename, lines, err := parser.GetReadme()
 
 	var buffer bytes.Buffer
 	if err != nil {
@@ -73,7 +73,7 @@ func processHug(url *Hug, config *config.Configuration, stopWordsFile string, pr
 			log.Println("CreateBranch failed:", err)
 			return
 		}
-		err = parser.CommitFile(branch, branchname, "README.md", content, "Fixing some typos")
+		err = parser.CommitFile(branch, branchname, filename, content, "Fixing some typos")
 		if err != nil {
 			log.Println("Commit failed:", err)
 			return

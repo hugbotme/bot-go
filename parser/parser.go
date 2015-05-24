@@ -79,7 +79,7 @@ func (p Parser) ForkRepository() (*github.Repository, *github.Response, error) {
 	return p.client.Client.Repositories.CreateFork(p.username, p.repositoryname, &forkOptions)
 }
 
-func (p Parser) GetReadme() ([]string, error) {
+func (p Parser) GetReadme() (string, []string, error) {
 
 	readmeFiles := []string{"README.md", "README.txt", "README", "Readme.md", "Readme.txt", "Readme"}
 
@@ -87,11 +87,12 @@ func (p Parser) GetReadme() ([]string, error) {
 		path := p.clonedProjectsPath + p.repositoryname + "/" + filename
 		if _, err := os.Stat(path); err == nil {
 			log.Printf("Readme file exists; processing...")
-			return p.GetFileContents(filename)
+			lines, err := p.GetFileContents(filename)
+			return filename, lines, err
 		}
 	}
 
-	return nil, errors.New("Could not find README file :,(")
+	return "", nil, errors.New("Could not find README file :,(")
 }
 
 func (p Parser) GetFileContents(filename string) ([]string, error) {
