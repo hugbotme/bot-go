@@ -110,18 +110,21 @@ func (spfp spellCheckFileProcessor) isWordEndingChar (chars ...byte) bool {
 	if len(chars) > 1 && spfp.isLookForwardAndBackChar(char) {
 		//fmt.Println("checking for contraction " + char + string(chars[1]) + string(chars[2]))
 		// jvt: try to detect contraction
-		matchedBack, _ := regexp.Match("[A-Za-z]", []byte(string(chars[1])))
-		matchedForward, _ := regexp.Match("[A-Za-z]", []byte(string(chars[2])))
-		matched = (matchedBack && matchedForward)
+		matched = spfp.matchLetter(string(chars[1])) && spfp.matchLetter(string(chars[2]))
 	} else {
-		matched, _ = regexp.Match("[A-Za-z-]", []byte(char))
+		matched = spfp.matchLetter(char)
 	}
 
 	return !matched
 }
 
+func (spfp spellCheckFileProcessor) matchLetter (char string) bool {
+	matched, _ := regexp.Match("[A-Za-z]", []byte(char))
+	return matched
+}
+
 func (spfp spellCheckFileProcessor) isLookForwardAndBackChar (char string) bool {
-	return char == "'"
+	return char == "'" || char == "-"
 }
 
 func (spfp spellCheckFileProcessor) processWord (word string) string {
