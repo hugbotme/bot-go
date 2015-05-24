@@ -73,8 +73,8 @@ func (spfp spellCheckFileProcessor) processContent (content []byte) string {
 			buffer.WriteByte(b)
 		} else {
 			var isWordEndingChar bool
-			if index > 0 && index < contentLength {
-				isWordEndingChar = spfp.isWordEndingChar(b, content[index - 1], content[index + 1])
+			if index > 0 && index < contentLength-2 {
+				isWordEndingChar = spfp.isWordEndingChar(b, content[index-1], content[index+1])
 			} else {
 				isWordEndingChar = spfp.isWordEndingChar(b)
 			}
