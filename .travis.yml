@@ -3,4 +3,5 @@ language: go
 sudo: required
 
 before_script:
-    - sudo apt-get install aspell
+    - sudo apt-get install aspell aspell-en
+    - sudo apt-get install libgit2-dev
