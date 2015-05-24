@@ -4,4 +4,9 @@ sudo: required
 
 before_install:
     - sudo apt-get install aspell aspell-en
-    - sudo apt-get install libgit2
+    - cd ~
+    - git clone --depth=1 -b maint/v0.22 https://github.com/libgit2/libgit2.git
+    - cd libgit2/
+    - mkdir build && cd build
+    - cmake .. -DCMAKE_INSTALL_PREFIX=../_install -DBUILD_CLAR=OFF
+    - cmake --build . --target install
