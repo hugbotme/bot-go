@@ -669,6 +669,9 @@ FORMAC
 @Formula
 Forth
 Fortress
+Flexbugs
+Flexbox
+flexbox
 FoxPro
 FP
 FPr
@@ -872,7 +875,7 @@ SLIP
 Small Basic
 SML
 Snap!
-SPITBOL]
+SPITBOL
 Snowball
 SOL
 Span
@@ -923,3 +926,4 @@ Yorick
 YQL
 Zeno
 ZPL
+zone

@@ -17,7 +17,7 @@ type GitHubURL struct {
 	Repository string
 }
 
-func processHug(url *Hug, config *config.Configuration) {
+func processHug(url *Hug, config *config.Configuration, stopWordsFile string, probableWordsFile string) {
 	fmt.Println("Parsing repository: " + url.URL)
 
 	gitHubUrl, err := ParseGitHubURL(url.URL)
@@ -56,7 +56,7 @@ func processHug(url *Hug, config *config.Configuration) {
 			buffer.WriteString(line)
 		}
 
-		processor, err := newSpellCheckFileProcessor()
+		processor, err := newSpellCheckFileProcessor(stopWordsFile, probableWordsFile)
 		if err != nil {
 			fmt.Errorf("could not get speller: %s", err.Error())
 			return

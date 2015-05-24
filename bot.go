@@ -18,6 +18,8 @@ import (
 var (
 	flagConfigFile *string
 	flagTestFile *string
+	flagStopWordsFile    *string
+	flagProbableWordsFile    *string
 	flagPidFile    *string
 	flagVersion    *bool
 )
@@ -38,6 +40,8 @@ func init() {
 	flagConfigFile = flag.String("config", "", "Configuration file")
 	flagPidFile = flag.String("pidfile", "", "Write the process id into a given file")
 	flagTestFile = flag.String("testfile", "", "Spell check test file")
+	flagStopWordsFile = flag.String("stopwords", "", "Stop words to ignore when spell checking")
+	flagProbableWordsFile = flag.String("prefer", "", "Word list to prefer")
 	flagVersion = flag.Bool("version", false, "Outputs the version number and exits")
 }
 
@@ -105,6 +109,16 @@ func main() {
 		log.Fatal("No configuration file found. Please add the --config parameter")
 	}
 
+	// Check for stop words file
+	if len(*flagStopWordsFile) <= 0 {
+		log.Fatal("No stop words file found. Please add the --stopwords parameter")
+	}
+
+	// Check for preferred file
+	if len(*flagProbableWordsFile) <= 0 {
+		log.Fatal("No preferences file found. Please add the --prefer parameter")
+	}
+
 	// PID-File
 	if len(*flagPidFile) > 0 {
 		ioutil.WriteFile(*flagPidFile, []byte(strconv.Itoa(os.Getpid())), 0644)
@@ -120,7 +134,7 @@ func main() {
 	if len(*flagTestFile) > 0 {
 		// jvt: @todo error handling?
 		testFile, _ := ioutil.ReadFile(*flagTestFile)
-		processor, _ := newSpellCheckFileProcessor()
+		processor, _ := newSpellCheckFileProcessor(*flagStopWordsFile, *flagProbableWordsFile)
 		processor.processContent(testFile)
 		os.Exit(1)
 	}
@@ -158,6 +172,6 @@ func main() {
 	// jvt: check for new job
 	for job := range jobs {
 		fmt.Println("got new job: ", job)
-		go processHug(job, config)
+		go processHug(job, config, *flagStopWordsFile, *flagStopWordsFile)
 	}
 }

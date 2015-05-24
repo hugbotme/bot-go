@@ -6,22 +6,36 @@ import(
 	s "strings"
 	"bytes"
 	"regexp"
+	"io/ioutil"
 )
 
 type spellCheckFileProcessor struct {
 	spellChecker aspell.Speller
+	stopWords []string
+	probableWords []string
 }
 
-func newSpellCheckFileProcessor() (spellCheckFileProcessor, error) {
+func newSpellCheckFileProcessor(stopWordsFile string, probableWordsFile string) (spellCheckFileProcessor, error) {
 	// Initialize the speller
 	speller, err := aspell.NewSpeller(map[string]string{
 		"lang": "en_US",
+		//"personal": stopWordsFile,
 	})
 	// jvt: be sure to clean up, C lib being used here....
 	defer speller.Delete()
 
+	// jvt: read stop words file to array
+	// jvt: @todo error handling?
+	stopWordsContent, _ := ioutil.ReadFile(stopWordsFile)
+
+	// jvt: read probable words words file to array
+	// jvt: @todo error handling?
+	probableWordsContent, _ := ioutil.ReadFile(probableWordsFile)
+
 	return spellCheckFileProcessor{
 		spellChecker: speller,
+		stopWords: s.Split(string(stopWordsContent), "\n"),
+		probableWords: s.Split(string(probableWordsContent), "\n"),
 	}, err
 }
 
@@ -128,6 +142,11 @@ func (spfp spellCheckFileProcessor) isLookForwardAndBackChar (char string) bool 
 }
 
 func (spfp spellCheckFileProcessor) processWord (word string) string {
+	// jvt: check for stop word
+	if spfp.checkForStopword(word) {
+		return word
+	}
+
 	spellingCorrect, suggestions := spfp.checkSpelling(word)
 	if (spellingCorrect) {
 		return word
@@ -136,13 +155,24 @@ func (spfp spellCheckFileProcessor) processWord (word string) string {
 
 		// jvt: @todo jup....
 		if len(suggestions) > 0 {
+			fmt.Printf("suggestions: %s\n", s.Join(suggestions, ", "))
+
 			fmt.Println("Replacing \"" + word + "\" with \"" + suggestions[0] + "\"")
-			fmt.Printf("Alternative suggestions: %s\n", s.Join(suggestions, ", "))
 			return suggestions[0]
 		}
 
 		return word
 	}
+}
+
+func (spfp spellCheckFileProcessor) checkForStopword (word string) bool {
+	for _, stopword := range spfp.stopWords {
+		if (word == stopword) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (spfp spellCheckFileProcessor) checkSpelling (word string) (bool, []string) {
