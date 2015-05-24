@@ -1,0 +1,544 @@
+2-D
+3-D
+4-D
+ac
+access
+access control
+access control list
+access number
+access provider
+access rights
+access time
+account
+active
+address
+aggregate data
+alias
+aliasing and anti-aliasing
+alphanumeric
+alt tag
+alt text
+analog
+annotations
+anomaly
+anonymous FTP
+anonymous posting
+anti-
+AOL winsock
+Apple key
+application
+architecture
+archive
+array
+ascending order
+ASCII art
+ASCII-armored
+attenuation
+attribute
+AUP
+author
+authorization
+average time per page request
+back end
+back slash
+backdoor
+bar code
+bcc
+bells-and-whistles
+beta
+beta bugs
+binary
+BIND
+BinHex
+biometrics
+black box model
+blue screen of death
+BMP or .bmp
+body
+BOOF
+bps
+broadcast storm
+browser-safe colors
+buffer
+bulletin board
+bundle or bundling
+bypass
+byte
+C shell
+cache or caching
+carbon footprint
+case sensitive
+CBT (Computer Based Training)
+ccTLD
+CD-ROM
+CGI form
+cgi-bin
+character
+chip
+cipher
+clear-text password
+client
+client error
+client pull
+client push
+client-side
+client/server
+clippy
+cloaking
+clustering
+CMYK
+co-location
+code or coding
+cold potato routing
+COM
+com or .com
+COM port
+command line
+compatible or compatibility
+compiler
+composition flaw
+computer science
+concatenated speech
+configuration
+configure
+connect
+connect time
+connectivity
+console
+context sensitive menu
+counter
+crash
+crawler
+CRC
+cross-platform
+cryptanalysis
+cryptic
+cryptic password
+cryptoperiod
+CSP
+Ctrl
+cursor
+customize
+cut-and-paste
+cut-and-paste attack
+cutover
+daemon
+daisy chain
+data
+data backup
+data center
+data recovery
+data repository
+data storage
+data store
+data traffic
+data warehousing
+database
+database front end
+database-driven
+datagram
+DCE
+DDoS
+de facto standard
+deactivation
+dedicated hosting
+default
+default browser
+defect
+delete
+deletion
+Denial of Service
+description tag
+deselect
+desktop
+desktop video (DTV)
+destructive payload
+device
+dial-up
+dial-up account
+digit mode
+digital
+digital audio
+digital lifestyle
+direct connection
+directory
+disc
+disk
+distributed computing
+distribution
+DLL or .dll
+DLP
+DNA barcoding
+DNS
+docs
+document
+domain name
+dot file
+double click
+download
+downstream
+dpi
+drop down menu
+dumb terminal
+duplex
+dynamic
+dynamic node
+e-document
+e-mail forwarding
+edu
+electronic
+embedded hyperlink
+encoding
+end-user
+environment
+error message
+EUV light
+exabyte
+export
+extensions
+fat binary
+favorite
+FAWN
+feature
+file
+file extension
+filter
+firmware
+flat file
+flavor
+floating toolbar
+flooding
+floppy disk
+follow-up
+font
+form
+format
+forum
+forward slash
+fractal
+frame
+frame relay
+frame source
+frames
+frames-free
+freeze
+front end
+frontdoor
+FUI
+full duplex
+full user mobility
+full-text search
+gaming
+gateway
+Gbps
+generation
+gig
+giga-
+gigabit
+gigabyte
+glitch
+gobbledygook
+gov or .gov
+grabber hand
+Graffiti
+grand challenge
+graphic or graphics
+GUI
+handshake
+handwriting recognition
+hang
+hard copy
+hard disk
+harvest or harvesting
+header
+hertz (Hz)
+heuristics
+hexadecimal
+hierarchy
+high-speed
+home networking
+host
+host name
+hot potato routing
+HTML
+htpasswd
+HUB
+hypertext
+icon
+illegal
+image
+imagemap
+IMG SRC or img src
+import
+in-line image
+inbox
+index
+indexer
+indices
+information age
+information packet
+infrared
+infrared port
+infrastructure
+initialization string
+install
+integrate
+integrity
+interactive
+interface
+Internet account
+Internet security
+interoperability
+IP
+IP address
+IPv6
+IS
+iscrape
+issue
+IT
+jaggies
+just-in-time (JIT)
+K or KB
+Kbps
+kernel
+key
+key ring
+keyboard
+keylogger
+keyword
+kill file
+kilo-
+kilobyte
+language
+launch
+leased line
+legacy system
+local computer
+log
+log file
+long domain name
+M or MB
+macrosite
+MacTCP
+mailbox
+matricized
+Mbps
+MD5 authentication
+mega-
+megabyte
+megahertz (MHz)
+menu
+menu bar
+message board
+meta-
+micro-
+microsite
+middleware
+MIDI
+mil or .mil
+MIME
+MIP Mapping
+mips
+mirror
+MIS
+mixed signal
+mobile
+moderated newsgroup
+moderator
+morph or morphing
+mouse pad
+MOV
+MR
+MS-DOS
+multi-user
+multimedia
+multitasking
+multitiered application
+music-swapping
+MX record
+nano-
+nanosecond
+NASCII art
+net neutrality
+netsplit
+network computing
+newsfeed
+nibble
+nonvolatile
+obsolete
+OH
+OLED
+open
+open access
+open source
+optical network
+optimize
+org or .org
+orphans
+OSP
+outage
+packet
+packet network
+packet switching
+parallel port
+parse
+password
+PC-compatible
+peer-to-peer networking
+personalize or personalization
+peta-
+petabyte
+pico-
+pipe
+piracy
+pixel
+plain text
+planfile
+platform
+plug-and-play
+podcache
+point-and-click
+PostScript
+pound sign
+power down
+power up
+ppi
+preferences
+presence technology
+print res
+privacy
+profile
+programmer
+programming language
+propagation
+query
+queue
+QWERTY
+radio button
+rain fade
+README
+reboot
+Red Book
+Red Brick Intelligent SQL
+redirect
+reformat
+refresh or reload
+release
+remote
+remote terminal
+render
+resolution
+resolve
+return code
+reverse engineering
+RF
+RFC
+RGB
+right click
+RTF or .rtf
+run
+runtime program
+save
+SceneGraph
+screen res
+screen scraping
+search
+search tree
+second-level domain
+security
+select
+semantic search
+semantic Web
+sendmail
+server error
+server-side
+server-side include
+shareware
+shell account
+shortcut
+sig file
+sign off
+sign on
+signal-to-noise ratio
+signature file
+silicon
+site search
+sitemap or site map
+smurf
+sniffer
+socket or sockets
+soft copy
+sort
+source code
+special characters
+specifications
+specs
+spectrum
+speech-to-text
+spell checker
+spoofing
+stack
+standard
+static
+Static IP
+stored procedure
+stovepipe
+string
+style sheets
+subnet mask
+substring
+suite
+support
+SVG
+synchronization
+synchronous learning
+syntax
+system
+tab-delimited
+task bar
+tera-
+terabyte
+terminal emulation
+terminal server
+text
+the edge
+thin client
+third-level domain
+throttling
+throughput
+TIF or .tif
+tilde or ~
+title bar
+TLD
+toggle
+tool or tools
+toolbar
+top-level domain
+tracking cookie
+truncate
+TWAIN
+tweak
+up
+uplink
+upload
+upstream
+URL
+user agent
+utility
+utility computing
+vanilla
+version or V2.0
+video
+virtual circuit
+virtual directory
+wallpaper
+wideband
+wiki
+wild card or *.*
+window
+winsock
+wizard
+yottabyte
+yoyo mode
+zapping
+zone
