@@ -51,8 +51,8 @@ func processHug(url *Hug, config *config.Configuration) {
 	if err != nil {
 		log.Printf("Error reading README: %v\n", err)
 	} else {
-		for i, line := range lines {
-			fmt.Println(i, line)
+		for _, line := range lines {
+			//fmt.Println(i, line)
 			buffer.WriteString(line)
 		}
 
@@ -68,7 +68,15 @@ func processHug(url *Hug, config *config.Configuration) {
 
 		// TODO: ERROR HANDLING
 		branch, err := parser.CreateBranch(branchname)
-		parser.CommitFile(branch, branchname, "Readme.md", content, "Fixing some typos")
+		if err != nil {
+			log.Println("CreateBranch failed:", err)
+			return
+		}
+		err = parser.CommitFile(branch, branchname, "README.md", "foobar", "Fixing some typos")
+		if err != nil {
+			log.Println("Commit failed:", err)
+			return
+		}
 		parser.PullRequest(branchname, "A friendly pull request")
 	}
 }

@@ -126,9 +126,8 @@ func (p Parser) CreateBranch(branchname string) (*git.Branch, error) {
 
 func (p Parser) CommitFile(branch *git.Branch, branchname string, filename string, contents string, msg string) error {
 	filepath := p.clonedProjectsPath + p.repositoryname + "/" + filename
-
 	p.WriteLines(filepath, contents)
-	treeId, err := p.AddFilePath(filepath)
+	treeId, err := p.AddFilePath(filename)
 
 	if err != nil {
 		return err
