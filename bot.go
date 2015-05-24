@@ -16,12 +16,12 @@ import (
 )
 
 var (
-	flagConfigFile *string
-	flagTestFile *string
-	flagStopWordsFile    *string
-	flagProbableWordsFile    *string
-	flagPidFile    *string
-	flagVersion    *bool
+	flagConfigFile        *string
+	flagTestFile          *string
+	flagStopWordsFile     *string
+	flagProbableWordsFile *string
+	flagPidFile           *string
+	flagVersion           *bool
 )
 
 const (
@@ -64,17 +64,6 @@ func FetchFromQueue(client redis.Conn) (*Hug, error) {
 	}
 
 	return &hug, nil
-}
-
-func AddFinished(client redis.Conn, hug *Hug) error {
-	client.Do("RPUSH", "hug:finished")
-	jsonHug, err := json.Marshal(hug)
-	if err != nil {
-		return err
-	}
-
-	_, err = client.Do("RPUSH", "hug:finished", string(jsonHug))
-	return nil
 }
 
 func ConnectRedis(url string, auth string) redis.Conn {

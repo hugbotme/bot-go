@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/garyburd/redigo/redis"
 	"github.com/hugbotme/bot-go/config"
 	"github.com/hugbotme/bot-go/parser"
 	"github.com/hugbotme/bot-go/twitter"
@@ -16,6 +18,17 @@ type GitHubURL struct {
 	URL        *netUrl.URL
 	Owner      string
 	Repository string
+}
+
+func AddFinished(client redis.Conn, hug *Hug) error {
+	client.Do("RPUSH", "hug:finished")
+	jsonHug, err := json.Marshal(hug)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Do("RPUSH", "hug:finished", string(jsonHug))
+	return nil
 }
 
 func processHug(url *Hug, config *config.Configuration, stopWordsFile string, probableWordsFile string) {
@@ -88,11 +101,15 @@ func processHug(url *Hug, config *config.Configuration, stopWordsFile string, pr
 			}
 		}
 
-		_, err = parser.PullRequest(branchname, "I fixed a few typos", tweet_add)
+		log.Println("this would now create a pull request, tweet_add:", tweet_add)
+		pr, err := parser.PullRequest(branchname, "I fixed a few typos", tweet_add)
 		if err != nil {
 			log.Println("PullRequest failed:", err)
 			return
 		}
+		redisClient := ConnectRedis(config.Redis.Url, config.Redis.Auth)
+		url.PullRequestId = *pr.Number
+		AddFinished(redisClient, url)
 	}
 }
 
