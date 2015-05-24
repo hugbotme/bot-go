@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/google/go-github/github"
 	"github.com/hugbotme/bot-go/config"
@@ -11,7 +12,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"errors"
 )
 
 type Parser struct {
@@ -22,6 +22,24 @@ type Parser struct {
 	repositoryname     string
 	signature          *git.Signature
 	repopointer        *git.Repository
+}
+
+func (p *Parser) GetClonedProjectsPath() string {
+	return p.clonedProjectsPath
+}
+func (p *Parser) GetRepositoryname() string {
+	return p.repositoryname
+}
+
+func (p *Parser) Clone(repo *github.Repository) error {
+	repopointer, err := git.Clone(*repo.CloneURL, p.clonedProjectsPath+p.repositoryname, &git.CloneOptions{})
+	p.repopointer = repopointer
+
+	if err != nil {
+		log.Printf("Error during clone: %v\n", err)
+		return err
+	}
+	return nil
 }
 
 // Init function to define arguments
@@ -59,7 +77,7 @@ func certificateCheckCallback(cert *git.Certificate, valid bool, hostname string
 	return 0
 }
 
-func (p Parser) ForkRepository(username, repo string) (*github.Repository, *github.Response, error) {
+func (p Parser) ForkRepository() (*github.Repository, *github.Response, error) {
 	// list all repositories for the authenticated user
 	//repos, _, err := githubClient.Client.Repositories.List("", nil)
 
@@ -70,7 +88,7 @@ func (p Parser) ForkRepository(username, repo string) (*github.Repository, *gith
 		"",
 	}
 
-	return p.client.Client.Repositories.CreateFork(username, repo, &forkOptions)
+	return p.client.Client.Repositories.CreateFork(p.username, p.repositoryname, &forkOptions)
 }
 
 func (p Parser) GetReadme() ([]string, error) {
@@ -88,21 +106,6 @@ func (p Parser) GetReadme() ([]string, error) {
 }
 
 func (p Parser) GetFileContents(filename string) ([]string, error) {
-	repo, _, err := p.ForkRepository(p.username, p.repositoryname)
-
-	if err != nil {
-		log.Printf("Error during fork: %v\n", err)
-	}
-
-	log.Printf("Forked repo:" + *repo.CloneURL)
-
-	repopointer, err := git.Clone(*repo.CloneURL, p.clonedProjectsPath+p.repositoryname, &git.CloneOptions{})
-	p.repopointer = repopointer
-
-	if err != nil {
-		log.Printf("Error during clone: %v\n", err)
-	}
-
 	return p.ReadLines(p.clonedProjectsPath + p.repositoryname + "/" + filename)
 }
 

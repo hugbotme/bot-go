@@ -29,6 +29,21 @@ func processHug(url *Hug, config *config.Configuration) {
 
 	parser := parser.NewParser(gitHubUrl.Owner, gitHubUrl.Repository, config)
 
+	repo, _, err := parser.ForkRepository()
+	if err != nil {
+		log.Printf("Error during fork: %v\n", err)
+		return
+	}
+
+	log.Printf("Forked repo:" + *repo.CloneURL)
+	log.Printf("Clone path:" + parser.GetClonedProjectsPath() + parser.GetRepositoryname())
+
+	err = parser.Clone(repo)
+	if err != nil {
+		log.Printf("Error during clone: %v\n", err)
+		return
+	}
+
 	// jvt: @todo this could all be streamed through memory as a byte stream
 	lines, err := parser.GetReadme()
 
